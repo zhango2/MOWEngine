@@ -1,0 +1,89 @@
+import "MOWCommon.proto";
+//option optimize_for = LITE_RUNTIME;
+
+package PbMOWGraphics;
+
+
+message PbMOWLight
+{
+  enum Type
+  {
+    NONE = 0;
+    DIRECTIONAL = 1;
+    POINT = 2;
+    SPOT = 3;
+  }
+
+  optional Type type = 1;
+  optional string name = 2;
+  optional PbMOWCommon.PbMOWVector3 direction = 3;
+  optional PbMOWCommon.PbMOWVector4 ambientColor = 4;
+  optional PbMOWCommon.PbMOWVector4 diffuseColor = 5;
+  optional PbMOWCommon.PbMOWVector4 specularColor = 6;
+  optional PbMOWCommon.PbMOWVector3 attenuation = 7;
+  optional bool hasPosition = 8;
+  optional PbMOWModel model = 9;
+
+}
+
+message PbMOWVertex
+{
+  optional PbMOWCommon.PbMOWVector3 position = 1;
+  optional PbMOWCommon.PbMOWVector3 texture = 2;
+  optional PbMOWCommon.PbMOWVector3 normal = 3;
+  optional PbMOWCommon.PbMOWVector4 color = 4;
+}
+
+message PbMOWFace
+{
+  repeated int32 indices = 1;
+}
+
+message PbMOWModelPart
+{
+  repeated PbMOWVertex vertices = 1;
+  repeated PbMOWFace faces = 2;
+  optional string name = 3;
+  optional string materialName = 4;
+}
+
+enum PbMOWBoundingShape
+{
+  option allow_alias = true;
+  PMBS_NONE = 0;
+  PMBS_BOX = 1;
+  PMBS_SPHERE = 2;
+}
+
+message PbMOWBoundingSphere
+{
+  optional PbMOWCommon.PbMOWVector3 center = 1;
+  optional float radius = 2;
+}
+
+message PbMOWBoundingBox
+{
+  optional string name = 1;
+  optional PbMOWModelPart part = 2;
+  optional PbMOWCommon.PbMOWVector3 widthHeightDepth = 3;
+}
+
+message PbMOWModel
+{
+  repeated PbMOWModelPart parts = 1;
+  optional string name = 2;
+  optional PbMOWBoundingShape boundingShape = 3;
+  optional PbMOWBoundingBox boundingBox = 4;
+  optional PbMOWBoundingSphere boundingSphere = 5;
+  optional bytes physicalEntity = 6;
+  optional PbMOWCommon.PbMOWVector3 scale = 7;
+}
+
+message PbMOWScene
+{
+  repeated PbMOWModel fixedModels = 1;
+  repeated PbMOWModel dynamicModels = 2;
+  repeated PbMOWModel cameras = 3;
+  repeated PbMOWLight lights = 4;
+}
+

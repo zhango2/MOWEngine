@@ -1,0 +1,14 @@
+project(MOWCommon)
+add_library(MOWCommon
+  MOWStringConverter.cpp
+  MOWTimer.cpp
+  MOWVector.cpp
+  MOWInput.cpp
+
+  MOWStringConverter.h
+  MOWTimer.h
+  MOWVector.h
+  MOWInput.h
+)
+
+include_directories("${BASE_DIR}")

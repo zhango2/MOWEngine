@@ -1,0 +1,25 @@
+
+//option optimize_for = LITE_RUNTIME;
+
+package PbMOWCommon;
+
+
+message PbMOWVector3
+{
+ 
+
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+
+}
+message PbMOWVector4
+{
+ 
+
+  optional double x = 1;
+  optional double y = 2;
+  optional double z = 3;
+  optional double w = 4;
+
+}
