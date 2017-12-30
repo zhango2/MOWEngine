@@ -265,6 +265,17 @@ public:
             const CMOWPhysics& physics
             );
 
+    const parts_map&
+        Parts(
+            )const;
+
+    void
+        CreatePhysicalBody(
+            CMOWPhysics& physics,
+            bool fixed,
+            bool collidable
+            );
+
 protected:
                                         
     virtual void                                
@@ -313,7 +324,6 @@ protected:
         AddModelPart(
             CMOWModelPart* part
             );
-
 
     parts_map                                   
         m_parts;

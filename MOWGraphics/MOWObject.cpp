@@ -132,6 +132,11 @@ const DirectX::XMFLOAT3& CMOWObject::Scale() const
     return m_scale;
 }
 //------------------------------------------------------
+CMOWVector CMOWObject::ScaleVector() const
+{
+    return CMOWVector(m_scale.x, m_scale.y, m_scale.z);
+}
+//------------------------------------------------------
 const std::string& CMOWObject::Name() const
 {
     return m_name;

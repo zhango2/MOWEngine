@@ -7,12 +7,23 @@
 #include <iostream>
 #include <fstream>
 #include "MOWVariant.h"
+#include <map>
 
 
 class CMOWMaterial : 
     public CMOWClass
 {
 public:
+
+    enum TEXTURE_TYPE
+    {
+        TT_NONE,
+        TT_BASE_COLOR,
+        TT_NORMAL,
+        TT_ROUGHNESS,
+        TT_METALLIC,
+        TT_HEIGHT
+    };
 
     CMOWMaterial();
 
@@ -66,11 +77,13 @@ public:
 
     const char*             
         TextureFileName(
+            TEXTURE_TYPE textureType = TT_BASE_COLOR
             ) const;
 
     void                    
         TextureFileName(
-            const char* textureFileName
+            const char* textureFileName,
+            TEXTURE_TYPE textureType = TT_BASE_COLOR
             );
 
     const char*             
@@ -113,6 +126,11 @@ public:
         ClassName(
             );
 
+    static TEXTURE_TYPE
+        TextureTypeFromName(
+            const char* textureName
+            );
+
 
 protected:
 
@@ -127,13 +145,21 @@ protected:
             CMOWVariant* val
             );
 
+    const std::string&
+        PrivateTextureFileName(
+            TEXTURE_TYPE textureType = TT_BASE_COLOR
+            )const;
+
 private:
+
+    std::map<TEXTURE_TYPE,std::string>
+        m_textureFilenameByTextureType;
+
+    std::string
+        m_emptyTexture;
 
     std::string             
         m_name;
-
-    std::string             
-        m_texture;
 
     DirectX::XMFLOAT4       
         m_Ka;

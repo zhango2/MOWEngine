@@ -68,6 +68,13 @@ public:
             )const;
 
     IMOWPhysicalEntity*
+        CreatePhysicalEntityFromModel(
+            const CMOWModel* model,
+            bool fixed,
+            bool collidable
+            ) const;
+
+    IMOWPhysicalEntity*
         LoadEntity(
             const std::string& data
             )const;

@@ -2,6 +2,15 @@
 #include "MOWCommon/MOWVector.h"
 
 using namespace DirectX;
+
+static std::map<std::string,CMOWMaterial::TEXTURE_TYPE> s_textureTypeByName = {
+    { "BaseColor",  CMOWMaterial::TT_BASE_COLOR },
+    { "Normal",     CMOWMaterial::TT_NORMAL },
+    { "Roughness",  CMOWMaterial::TT_ROUGHNESS },
+    { "Height",     CMOWMaterial::TT_HEIGHT },
+    { "Metallic",   CMOWMaterial::TT_METALLIC },
+};
+
 //---------------------------------------------
 CMOWMaterial::CMOWMaterial(
     const char* name,
@@ -14,7 +23,7 @@ CMOWMaterial::CMOWMaterial(
     )
 {
     m_name = name;
-    m_texture = texture;
+    TextureFileName(texture);
     m_Ka = Ka;
     m_Kd = Kd;
     m_Ks = Ks;
@@ -84,16 +93,29 @@ void CMOWMaterial::Ke(
 }
 
 //---------------------------------------------
-const char* CMOWMaterial::TextureFileName() const
+const char* CMOWMaterial::TextureFileName(
+    TEXTURE_TYPE textureType
+    ) const
 {
-    return m_texture.c_str();
+
+    const char* textureFileName = nullptr;
+    auto itTexture = m_textureFilenameByTextureType.find(textureType);
+
+    if( itTexture != m_textureFilenameByTextureType.end() )
+    {
+        textureFileName = itTexture->second.c_str();
+    }
+
+
+    return textureFileName;
 }
 //---------------------------------------------
 void CMOWMaterial::TextureFileName( 
-    const char* textureFileName 
+    const char* textureFileName,
+    TEXTURE_TYPE textureType
     )
 {
-    m_texture = textureFileName;
+    m_textureFilenameByTextureType[textureType] = textureFileName;
 }
 
 //---------------------------------------------
@@ -131,9 +153,9 @@ bool CMOWMaterial::Serialize(
     fOut.write(reinterpret_cast<const char*>(&nameLength),sizeof(size_t));
     fOut.write(reinterpret_cast<const char*>(m_name.c_str()),sizeof(char)*nameLength);
 
-    size_t textureLength = m_texture.length();
+    size_t textureLength = PrivateTextureFileName().length();
     fOut.write(reinterpret_cast<const char*>(&textureLength),sizeof(size_t));
-    fOut.write(reinterpret_cast<const char*>(m_texture.c_str()),sizeof(char)*textureLength);
+    fOut.write(reinterpret_cast<const char*>(PrivateTextureFileName().c_str()),sizeof(char)*textureLength);
 
     fOut.write(reinterpret_cast<const char*>(&m_Ka),sizeof(XMFLOAT4));
     fOut.write(reinterpret_cast<const char*>(&m_Kd),sizeof(XMFLOAT4));
@@ -150,7 +172,7 @@ bool CMOWMaterial::Serialize(
     std::ifstream& fIn 
     )
 {
-    size_t nameLength;
+    /*size_t nameLength;
     fIn.read(reinterpret_cast<char*>(&nameLength),sizeof(size_t));
 
     m_name.resize(nameLength);
@@ -168,7 +190,7 @@ bool CMOWMaterial::Serialize(
     fIn.read(reinterpret_cast<char*>(&m_Kd),sizeof(XMFLOAT4));
     fIn.read(reinterpret_cast<char*>(&m_Ks),sizeof(XMFLOAT4));
     fIn.read(reinterpret_cast<char*>(&m_Ke),sizeof(XMFLOAT4));
-    fIn.read(reinterpret_cast<char*>(&m_specularPower),sizeof(float));
+    fIn.read(reinterpret_cast<char*>(&m_specularPower),sizeof(float));*/
 
     return true;
 }
@@ -188,6 +210,21 @@ ShaderMaterial CMOWMaterial::AsShaderMaterial() const
 std::string CMOWMaterial::ClassName()
 {
     return "CDXMaterial";
+}
+//------------------------------------------------------
+CMOWMaterial::TEXTURE_TYPE CMOWMaterial::TextureTypeFromName(
+    const char* textureName
+    )
+{
+    TEXTURE_TYPE retVal = TT_NONE;
+    auto itTexture = s_textureTypeByName.find(textureName);
+
+    if( itTexture != s_textureTypeByName.end() )
+    {
+        retVal = itTexture->second;
+    }
+
+    return retVal;
 }
 //------------------------------------------------------
 void CMOWMaterial::InitializeMOWClass()
@@ -286,4 +323,12 @@ void CMOWMaterial::DoSetAttributeValue(
         SpecularPower(val->AsFloat());
     }
 }
+//------------------------------------------------------
+const std::string& CMOWMaterial::PrivateTextureFileName(
+    TEXTURE_TYPE textureType
+    ) const
+{
+    auto itTexture = m_textureFilenameByTextureType.find(textureType);
 
+    return itTexture != m_textureFilenameByTextureType.end() ? itTexture->second : m_emptyTexture;
+}

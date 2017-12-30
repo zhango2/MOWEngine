@@ -43,6 +43,13 @@ public:
             ID3D11Device* device
             );
 
+    virtual void                                
+        Scale( 
+            float xScale, 
+            float yScale, 
+            float zScale 
+            ) override;
+
     static CMOWBoundingBox*
         FromPb( 
             const PbMOWGraphics::PbMOWBoundingBox& fromPb 

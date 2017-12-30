@@ -119,6 +119,18 @@ bool CMOWBoundingBox::Initialize(ID3D11Device* device)
     return retVal;
 }
 //------------------------------------------------------
+void CMOWBoundingBox::Scale(
+    float xScale, 
+    float yScale, 
+    float zScale
+    )
+{
+    CMOWBox::Scale(xScale, yScale, zScale);
+    Width(xScale*Width());
+    Height(yScale*Height());
+    Depth(zScale*Depth());
+}
+//------------------------------------------------------
 CMOWBoundingBox* CMOWBoundingBox::FromPb(
     const PbMOWGraphics::PbMOWBoundingBox& fromPb
     )

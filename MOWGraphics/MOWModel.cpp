@@ -28,11 +28,11 @@ CMOWModel::CMOWModel(
 //---------------------------------------------
 CMOWModel::CMOWModel( CMOWModel& orig )
 {
-    m_boundingBox = orig.m_boundingBox;
-    m_boundingSphere = orig.m_boundingSphere;
+    m_physicalBody = nullptr;
+    m_boundingBox = nullptr;
+    m_boundingShape = PbMOWGraphics::PMBS_NONE;
     m_textures = orig.m_textures;
-    m_boundingShape = orig.m_boundingShape;
-    //m_physicalBody = orig.m_physicalBody->clone();
+    
     CopyParts(orig.m_parts);
 }
 //---------------------------------------------
@@ -922,29 +922,29 @@ void CMOWModel::CreateBoundingVolumes()
             for( size_t i = 0; i< itPart->second->Vertices().size(); i++ )
             {
 
-                if( itPart->second->Vertices()[i].m_position.x > maxX )
+                if( itPart->second->Vertices()[i].m_position.x * m_scale.x > maxX )
                 {
-                    maxX = itPart->second->Vertices()[i].m_position.x;
+                    maxX = itPart->second->Vertices()[i].m_position.x * m_scale.x;
                 }
-                else if (itPart->second->Vertices()[i].m_position.x < minX)
+                else if (itPart->second->Vertices()[i].m_position.x * m_scale.x < minX)
                 {
-                    minX = itPart->second->Vertices()[i].m_position.x;
+                    minX = itPart->second->Vertices()[i].m_position.x * m_scale.x;
                 }
-                if (itPart->second->Vertices()[i].m_position.y > maxY)
+                if (itPart->second->Vertices()[i].m_position.y * m_scale.y > maxY)
                 {
-                    maxY = itPart->second->Vertices()[i].m_position.y;
+                    maxY = itPart->second->Vertices()[i].m_position.y * m_scale.y;
                 }
-                else if (itPart->second->Vertices()[i].m_position.y < minY)
+                else if (itPart->second->Vertices()[i].m_position.y * m_scale.y < minY)
                 {
-                    minY = itPart->second->Vertices()[i].m_position.y;
+                    minY = itPart->second->Vertices()[i].m_position.y * m_scale.y;
                 }
-                if (itPart->second->Vertices()[i].m_position.z > maxZ)
+                if (itPart->second->Vertices()[i].m_position.z * m_scale.z > maxZ)
                 {
-                    maxZ = itPart->second->Vertices()[i].m_position.z;
+                    maxZ = itPart->second->Vertices()[i].m_position.z * m_scale.z;
                 }
-                else if (itPart->second->Vertices()[i].m_position.z < minZ)
+                else if (itPart->second->Vertices()[i].m_position.z * m_scale.z < minZ)
                 {
-                    minZ = itPart->second->Vertices()[i].m_position.z;
+                    minZ = itPart->second->Vertices()[i].m_position.z * m_scale.z;
                 }
 
             }
@@ -967,27 +967,29 @@ void CMOWModel::CreateBoundingVolumes()
         CreateBoundingBox(pos.x,pos.y,pos.z,xLength,yLength,zLength);
 
         float boxVolume = xLength*yLength*zLength;
+        float diagonal = sqrt( (xLength*xLength) + (yLength*yLength) + (zLength*zLength) );
 
-        float maxLength = xLength*CMOWObject::Scale().x;
+        /*float maxLength = xLength;
 
-        if( maxLength < yLength*CMOWObject::Scale().y )
+        if( maxLength < yLength )
         {
-            maxLength = yLength*CMOWObject::Scale().y;
+            maxLength = yLength;
         }
-        if( maxLength < zLength*CMOWObject::Scale().z )
+        if( maxLength < zLength )
         {
-            maxLength = zLength*CMOWObject::Scale().z;
-        }
+            maxLength = zLength;
+        }*/
 
-        float radius = maxLength/2.0f;
+        float radius = diagonal/2.0f;
         float sphereVolume = (4.0f*XM_PI*(radius*radius*radius) ) / 3.0f;
+        
 
         m_boundingShape = sphereVolume < boxVolume ? PbMOWGraphics::PbMOWBoundingShape::PMBS_SPHERE : PbMOWGraphics::PbMOWBoundingShape::PMBS_BOX;
         
         m_boundingSphere.Initialize(xCenter,
                                     yCenter,
                                     zCenter,
-                                    maxLength / 2.0f
+                                    radius
                                     );
 
     }
@@ -1078,9 +1080,23 @@ void CMOWModel::PropertiesFromPb(
     }
 }
 //------------------------------------------------------
+const parts_map& CMOWModel::Parts() const
+{
+    return m_parts;
+}
+//------------------------------------------------------
 void CMOWModel::AddModelPart(CMOWModelPart* part)
 {
     m_parts[part->Name()] = part;
+}
+//------------------------------------------------------
+void CMOWModel::CreatePhysicalBody(
+    CMOWPhysics& physics,
+    bool fixed,
+    bool collidable
+    )
+{
+    m_physicalBody = physics.CreatePhysicalEntityFromModel(this,fixed,collidable);
 }
 //------------------------------------------------------
 long CMOWModel::FindOppositeIndex(

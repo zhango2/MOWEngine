@@ -94,6 +94,15 @@ IMOWPhysicalEntity* CMOWPhysics::CreatePhysicalSphere(
     return m_world->ConstructSphere(collidable, fixed, radius, mass);
 }
 //------------------------------------------------------
+IMOWPhysicalEntity* CMOWPhysics::CreatePhysicalEntityFromModel(
+    const CMOWModel* model,
+    bool fixed,
+    bool collidable
+    ) const
+{
+    return m_world->ConstructPhysicalEntityFromModel(model, fixed, collidable);
+}
+//------------------------------------------------------
 IMOWPhysicalEntity* CMOWPhysics::LoadEntity(
     const std::string& data
     )const

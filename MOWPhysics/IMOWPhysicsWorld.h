@@ -5,6 +5,8 @@
 #include "MOWCommon/MOWVector.h"
 #include <string>
 
+class CMOWModel;
+
 class IMOWPhysicsWorld
 {
 public:
@@ -54,6 +56,13 @@ public:
             float radius,
             float mass
             ) const = 0;
+
+    virtual IMOWPhysicalEntity*
+        ConstructPhysicalEntityFromModel(
+            const CMOWModel* model,
+            bool fixed,
+            bool collidable
+            ) = 0;
 
     virtual std::string
         SaveEntity(

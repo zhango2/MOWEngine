@@ -3,6 +3,7 @@
 
 #include "MOWCommon.h"
 #include "MOWAlignedObject.h"
+#include "MOWCommon/MOWVector.h"
 
 class CMOWObject : 
     public CMOWAlignedObject
@@ -67,6 +68,10 @@ public:
     
     virtual const DirectX::XMFLOAT3& 
         Scale(
+            ) const;
+
+    virtual CMOWVector
+        ScaleVector(
             ) const;
 
     virtual const std::string&             
