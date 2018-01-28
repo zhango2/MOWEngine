@@ -88,9 +88,9 @@ HRESULT CMOWDeferredShader::SetupBuffer(
     return result;
 }
 //---------------------------------------
-const char* CMOWDeferredShader::ShaderTextureName()
+const char* CMOWDeferredShader::ShaderAlbedoTextureName()
 {
-    return "diffuseTexture";
+    return "albedoTexture";
 }
 
 

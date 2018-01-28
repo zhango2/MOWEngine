@@ -196,11 +196,9 @@ void CMOWLightShader::ApplyFXResources(
     if( resources && resources->size() >= 4 && !m_isInitialized)
     {
         m_colorResource->SetResource(resources->at(0));
-        m_ambientResource->SetResource(resources->at(1));
-        m_diffuseResource->SetResource(resources->at(2));
-        m_specularResource->SetResource(resources->at(3));
-        m_normalResource->SetResource(resources->at(4));
-        m_positionResource->SetResource(resources->at(5));
+        m_normalResource->SetResource(resources->at(1));
+        m_metalRoughHeightResource->SetResource(resources->at(2));
+        m_positionResource->SetResource(resources->at(3));
         m_isInitialized = true;
     }
 }
@@ -210,14 +208,12 @@ bool CMOWLightShader::CreateFX(ID3D11Device* device)
     bool retVal = false;
     if( CMOWShader::CreateFX(device) && m_fx && !m_isInitialized )
     {
-        m_colorResource = m_fx->GetVariableByName("colorTexture")->AsShaderResource();
-        m_ambientResource = m_fx->GetVariableByName("ambientTexture")->AsShaderResource();
-        m_diffuseResource = m_fx->GetVariableByName("diffuseTexture")->AsShaderResource();
-        m_specularResource = m_fx->GetVariableByName("specularTexture")->AsShaderResource();
+        m_colorResource = m_fx->GetVariableByName("albedoTexture")->AsShaderResource();
+        m_metalRoughHeightResource = m_fx->GetVariableByName("metalRoughHeightTexture")->AsShaderResource();
         m_normalResource = m_fx->GetVariableByName("normalTexture")->AsShaderResource();
         m_positionResource = m_fx->GetVariableByName("positionTexture")->AsShaderResource();
 
-        retVal = m_colorResource && m_ambientResource && m_positionResource && m_normalResource && m_diffuseResource && m_specularResource;
+        retVal = m_colorResource && m_positionResource && m_normalResource;
         
     }
 

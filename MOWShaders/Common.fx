@@ -45,6 +45,8 @@ struct VertexInputType
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 biTangent : BINORMAL;
     float4 color : COLOR;
 };
 
@@ -58,20 +60,18 @@ struct PixelInputType
     float3 worldPos : TEXCOORD3;
     float4 lightViewPosition : TEXCOORD4;
     float4 color : COLOR;
+    float3 tangent : TANGENT;
+    float3 biTangent : BINORMAL;
 };
 
 struct DeferredPixelOutputType
 {
-    float4 color : SV_TARGET0;
-
-    float4 ambient : SV_TARGET1;
-    float4 diffuse : SV_TARGET2;
-    float4 specular : SV_TARGET3;
-    float4 normal : SV_TARGET4;
-
+    float4 albedo : SV_TARGET0;
+    float4 normal : SV_TARGET1;
+    float4 metalRoughHeight : SV_TARGET2;
     //contains the position in xyz
     //and lighViewPos.w in w
-    float4 position : SV_TARGET5;
+    float4 position : SV_TARGET3;
 	
 };
 

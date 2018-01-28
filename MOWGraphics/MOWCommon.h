@@ -33,6 +33,8 @@ struct Vertex
     DirectX::XMFLOAT3 m_position;
     DirectX::XMFLOAT2 m_texture;
     DirectX::XMFLOAT3 m_normal;
+    DirectX::XMFLOAT3 m_tangent;
+    DirectX::XMFLOAT3 m_biTangent;
     DirectX::XMFLOAT4 m_color;
 };
 

@@ -1,11 +1,9 @@
 #include "Common.fx"
 
-Texture2D colorTexture : register(t0);
-Texture2D ambientTexture : register(t1);
-Texture2D diffuseTexture : register(t2);
-Texture2D specularTexture : register(t3);
-Texture2D normalTexture : register(t4);
-Texture2D positionTexture : register(t5);
+Texture2D albedoTexture : register(t0);
+Texture2D metalRoughHeightTexture : register(t1);
+Texture2D normalTexture : register(t2);
+Texture2D positionTexture : register(t3);
 
 DepthStencilState FirstPassStencilState
 {
@@ -89,6 +87,132 @@ BlendState SecondPassBlendState
     DestBlendAlpha[0] = ONE;
     SrcBlendAlpha[0] = ONE;
 };
+
+static const float PI = 3.14159265359;
+
+void DistributionGGX(
+    float3 N, 
+    float3 H, 
+    float roughness,
+    out float NDF
+    )
+{
+    float a      = roughness*roughness;
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0f);
+    float NdotH2 = NdotH*NdotH;
+
+    float nom   = a2;
+    float denom = (NdotH2 * (a2 - 1.0f) + 1.0f);
+    denom = PI * denom * denom;
+
+    NDF = nom / denom;
+}
+
+float GeometrySchlickGGX(
+    float NdotV, 
+    float roughness
+    )
+{
+    float r = (roughness + 1.0f);
+    float k = (r*r) / 8.0f;
+
+    float nom   = NdotV;
+    float denom = NdotV * (1.0f - k) + k;
+
+    return nom / denom;
+}
+
+void GeometrySmith(
+    float3 N, 
+    float3 V, 
+    float3 L, 
+    float roughness,
+    out float G
+    )
+{
+    float NdotV = max(dot(N, V), 0.0f);
+    float NdotL = max(dot(N, L), 0.0f);
+    float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+
+    G = ggx1 * ggx2;
+}
+
+void FresnelSchlick(
+    float cosTheta,
+    float3 F0,
+    out float3 F
+    )
+{
+    F = F0 + (1.0f - F0) * pow(1.0f - cosTheta, 5.0f);
+}
+
+void ComputePointLightPBR(
+    Light light,
+    float3 worldPos,
+    float3 N,
+    float3 cameraPos,
+    float3 albedo,
+    float metallic,
+    float roughness,
+    out float3 color
+    )
+{
+
+    /*vec3 lightDir   = normalize(lightPos - FragPos);
+    vec3 viewDir    = normalize(viewPos - FragPos);
+    vec3 halfwayDir = normalize(lightDir + viewDir);*/
+
+
+
+    float3 V = normalize(cameraPos - worldPos); //View direction
+    float3 lightColor = light.diffuse.rgb;
+    float3 L = normalize(light.position - worldPos); //Light direction
+    float3 H = normalize(V + L); //Halfway direction
+    float distance = length(light.position - worldPos);
+
+    float attenuation = light.attenuation.x + (light.attenuation.y * distance) + (light.attenuation.z * (distance*distance));
+    attenuation = 1.0f / attenuation;
+    //float attenuation = 1.0f / (distance * distance);
+    float3 radiance = lightColor * attenuation;
+    float3 F0 = float3(0.04f,0.04f,0.04f);
+    float G = 1.0f;
+    float NDF = 1.0f;
+    float3 F = F0;
+
+    F0 = lerp(F0,albedo,metallic);
+
+    
+    DistributionGGX(N, H, roughness, NDF);
+    GeometrySmith(N, V, L, roughness, G);
+    FresnelSchlick(max(dot(H, V), 0.0f), F0, F);
+
+    float3 kS = F;
+    float3 kD = float3(1.0f, 1.0f, 1.0f) - kS;
+    //float3 kD = albedo;
+    kD *= 1.0f - metallic;
+
+    float3 nominator = NDF * G * F;
+    float denominator = 4.0f * (max(dot(N, V), 0.0f) * max(dot(N, L), 0.0f));
+    float3 specular = nominator / max(denominator, 0.001f);
+    
+
+    float NdotL = max(dot(N, L), 0.0f);
+    //float ao = 0.3f;
+
+    color = (kD * albedo / PI + specular) * radiance * NdotL;
+    /*float3 ambient = float3(0.003f, 0.003f, 0.003f) * albedo;
+
+    color += ambient;*/
+    float colorPow = 1.0f/2.2f;
+
+    color = color / (color + float3(1.0f, 1.0f, 1.0f));
+    color = pow(color, float3( colorPow, colorPow, colorPow));
+    
+
+}
+
 
 void ComputePointLight(Material mat, 
                        Light light, 
@@ -181,7 +305,7 @@ PixelInputType VS(VertexInputType input)
 float4 PS(PixelInputType input, in float4 screenPos : SV_position) : SV_Target0
 {
     float4 worldPos = float4(0.0f,0.0f,0.0f,1.0f);
-    float4 textureColor = float4(0.0f,0.0f,0.0f,0.0f);
+    float4 albedo = float4(0.0f,0.0f,0.0f,0.0f);
     float4 normal;
 
     float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -202,21 +326,16 @@ float4 PS(PixelInputType input, in float4 screenPos : SV_position) : SV_Target0
 
     // Sample the pixel color from the texture using the sampler at this texture coordinate location.
     
-    textureColor = colorTexture.Sample(WrapPointSamplerState, screenPos.xy);
-    //textureColor = textureColor + float4(0.5f,0.5f,0.5f,1.0f);
+    albedo = albedoTexture.Sample(WrapPointSamplerState, screenPos.xy);
+    float4 metallicRoughHeight = metalRoughHeightTexture.Sample(WrapPointSamplerState, screenPos.xy);
+
     //Sample normal
     normal = normalTexture.Sample(WrapPointSamplerState,screenPos.xy);
-
+    
     //Sample position
     worldPos = positionTexture.Sample(WrapPointSamplerState,screenPos.xy);
 
-    //Sample material info
-    mat.ambient = ambientTexture.Sample(WrapPointSamplerState,screenPos.xy);
-    mat.diffuse = diffuseTexture.Sample(WrapPointSamplerState,screenPos.xy);
-    mat.specular = specularTexture.Sample(WrapPointSamplerState,screenPos.xy);
-
-
-    float4 a,d,s;
+    /*float4 a,d,s;
     
     if(light.lightType == 2)
     {
@@ -229,9 +348,18 @@ float4 PS(PixelInputType input, in float4 screenPos : SV_position) : SV_Target0
 
     
 
-    resultColor = textureColor*(ambient + diffuse) + specular;
+    resultColor = textureColor*(ambient + diffuse) + specular;*/
     //resultColor *= textureColor;
     /*resultColor = saturate(resultColor/* + (specular * attenuation));*/
+
+    if(light.lightType == 2)
+    {
+        float3 color;
+        float3 toEye = normalize(cameraPosition - worldPos);
+        ComputePointLightPBR(light,worldPos.xyz,normal.xyz,cameraPosition, albedo.xyz, metallicRoughHeight.x, metallicRoughHeight.y, color);
+        resultColor = float4(color,0.0f);
+    }
+    
 
     return resultColor;
 }

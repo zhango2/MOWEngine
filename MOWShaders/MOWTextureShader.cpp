@@ -9,17 +9,31 @@ CMOWTextureShader::CMOWTextureShader()
     m_pixelShaderFilename = "TexturePixelShader.cso";
     m_fxFileName = "Texture.fxo";
     m_fxTechName = "TextureTech";
-    m_resources = 0;
+    m_albedoResource = nullptr;
+    m_normalResource = nullptr;
+    m_metallicRoughHeightResource = nullptr;
     
 
 }
 //---------------------------------------------
 CMOWTextureShader::~CMOWTextureShader()
 {
-    if( m_resources )
+    if( m_albedoResource )
     {
-        m_resources->Release();
-        m_resources = 0;
+        m_albedoResource->Release();
+        m_albedoResource = nullptr;
+    }
+
+    if( m_normalResource )
+    {
+        m_normalResource->Release();
+        m_normalResource = nullptr;
+    }
+
+    if( m_metallicRoughHeightResource )
+    {
+        m_metallicRoughHeightResource->Release();
+        m_metallicRoughHeightResource = nullptr;
     }
 }
 //---------------------------------------------
@@ -59,12 +73,24 @@ void CMOWTextureShader::CreateSamplerStates(
 //---------------------------------------
 void CMOWTextureShader::ApplyFXResources(std::vector<ID3D11ShaderResourceView*>* resources)
 {
-    if( m_fx && m_resources )
+    if( m_fx )
     {
+        if( m_albedoResource && resources->size() >= 1)
+        {
+            m_albedoResource->SetResource(resources->at(0));
+        }
+        if( m_normalResource && resources->size() >= 2 )
+        {
+            m_normalResource->SetResource(resources->at(1));
+        }
+        if( m_metallicRoughHeightResource && resources->size() >= 3 )
+        {
+            m_metallicRoughHeightResource->SetResource(resources->at(2));
+        }
         
-        std::vector<ID3D11ShaderResourceView*> tempVec = *resources;
-        m_resources->SetResourceArray(&resources->at(0),0,resources->size());
     }
+    
+
 }
 //---------------------------------------
 bool CMOWTextureShader::CreateFX(ID3D11Device* device)
@@ -72,14 +98,26 @@ bool CMOWTextureShader::CreateFX(ID3D11Device* device)
     bool retVal = false;
     if( BaseClass::CreateFX(device) && m_fx )
     {
-        m_resources = m_fx->GetVariableByName(ShaderTextureName())->AsShaderResource();
-        retVal = m_resources != 0;
+        m_albedoResource = m_fx->GetVariableByName(ShaderAlbedoTextureName())->AsShaderResource();
+        m_normalResource = m_fx->GetVariableByName(ShaderNormalTextureName())->AsShaderResource();
+        m_metallicRoughHeightResource = m_fx->GetVariableByName(ShaderMetallicRoughHeightTextureName())->AsShaderResource();
+        retVal = m_albedoResource && m_normalResource && m_metallicRoughHeightResource;
     }
 
     return retVal;
 }
 //---------------------------------------
-const char* CMOWTextureShader::ShaderTextureName()
+const char* CMOWTextureShader::ShaderAlbedoTextureName()
 {
-    return "diffuseTexture";
+    return "albedoTexture";
+}
+//------------------------------------------------------
+const char* CMOWTextureShader::ShaderNormalTextureName()
+{
+    return "normalTexture";
+}
+//------------------------------------------------------
+const char* CMOWTextureShader::ShaderMetallicRoughHeightTextureName()
+{
+    return "metallicRoughHeightTexture";
 }

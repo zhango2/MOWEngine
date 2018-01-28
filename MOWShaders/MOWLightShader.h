@@ -104,6 +104,9 @@ private:
     ID3DX11EffectShaderResourceVariable*    
         m_positionResource;
 
+    ID3DX11EffectShaderResourceVariable*    
+        m_metalRoughHeightResource;
+
     bool                                    
         m_isInitialized;
 

@@ -44,7 +44,7 @@ protected:
             );
 
     virtual const char*             
-        ShaderTextureName(
+        ShaderAlbedoTextureName(
             );
 
 private:

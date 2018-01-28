@@ -80,7 +80,7 @@ bool CMOWRenderer::Initialize(
     sd.BufferDesc.Width = m_screenWidth;
     sd.BufferDesc.Height = m_screenHeight;
     sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator = 0;
+    sd.BufferDesc.RefreshRate.Numerator = 60;
     sd.BufferDesc.RefreshRate.Denominator = 1;
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     sd.OutputWindow = hWnd;
@@ -239,7 +239,7 @@ bool CMOWRenderer::Initialize(
                                 // Create an orthographic projection matrix for 2D rendering.
                                 XMStoreFloat4x4(&m_orthoMatrix,XMMatrixOrthographicLH((float)m_screenWidth, (float)m_screenHeight, SCREEN_NEAR, SCREEN_DEPTH));
 
-                                m_renderToTexture.Initialize(m_d3dDevice,m_screenWidth,m_screenHeight,6);
+                                m_renderToTexture.Initialize(m_d3dDevice,m_screenWidth,m_screenHeight,4);
                                 m_renderToCube.Initialize(m_d3dDevice,m_screenWidth,m_screenHeight,6);
                                 m_depthWindow.Initialize(m_d3dDevice,m_immediateContext,m_screenWidth,m_screenHeight,m_screenWidth / 3,m_screenHeight / 3,1000,450);
                                 m_shadowWindow.Initialize(m_d3dDevice,m_immediateContext,m_screenWidth,m_screenHeight,m_screenWidth,m_screenHeight,0,0);

@@ -336,6 +336,8 @@ void CMOWShader::SetupElementDescriptions(
     descriptions.push_back(CreateVertexElementDesc("POSITION",DXGI_FORMAT_R32G32B32_FLOAT,0));
     descriptions.push_back(CreateVertexElementDesc("TEXCOORD",DXGI_FORMAT_R32G32_FLOAT));
     descriptions.push_back(CreateVertexElementDesc("NORMAL",DXGI_FORMAT_R32G32B32_FLOAT));
+    descriptions.push_back(CreateVertexElementDesc("TANGENT",DXGI_FORMAT_R32G32B32_FLOAT));
+    descriptions.push_back(CreateVertexElementDesc("BINORMAL",DXGI_FORMAT_R32G32B32_FLOAT));
     descriptions.push_back(CreateVertexElementDesc("COLOR",DXGI_FORMAT_R32G32B32A32_FLOAT));
 }
 //---------------------------------------------

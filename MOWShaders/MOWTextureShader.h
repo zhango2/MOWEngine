@@ -37,11 +37,25 @@ protected:
             );
 
     virtual const char*             
-        ShaderTextureName(
+        ShaderAlbedoTextureName(
+            );
+
+    virtual const char*             
+        ShaderNormalTextureName(
+            );
+
+    virtual const char*             
+        ShaderMetallicRoughHeightTextureName(
             );
 
     ID3DX11EffectShaderResourceVariable*    
-        m_resources;
+        m_albedoResource;
+
+    ID3DX11EffectShaderResourceVariable*    
+        m_normalResource;
+
+    ID3DX11EffectShaderResourceVariable*    
+        m_metallicRoughHeightResource;
 
 };
 #endif

@@ -51,7 +51,7 @@ ID3D11ShaderResourceView* CMOWResourceManager::GetOrCreateTexture(
     std::wstring fileName = CMOWStringConverter::CharToWchar(textureFilename);
     if( itTexture == m_textures.end() )
     {
-        if( !FAILED( DirectX::CreateWICTextureFromFileEx(device,fileName.c_str(),256,D3D11_USAGE_DEFAULT,D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,0,D3D11_RESOURCE_MISC_GENERATE_MIPS,false,NULL,&texture) ) )
+        if( !FAILED( DirectX::CreateWICTextureFromFileEx(device,fileName.c_str(),0,D3D11_USAGE_DEFAULT,D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,0,D3D11_RESOURCE_MISC_GENERATE_MIPS,false,NULL,&texture) ) )
         {
             m_textures[textureFilename] = texture;
         }

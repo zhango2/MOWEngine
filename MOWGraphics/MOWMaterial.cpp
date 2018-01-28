@@ -6,10 +6,16 @@ using namespace DirectX;
 static std::map<std::string,CMOWMaterial::TEXTURE_TYPE> s_textureTypeByName = {
     { "BaseColor",  CMOWMaterial::TT_BASE_COLOR },
     { "Normal",     CMOWMaterial::TT_NORMAL },
-    { "Roughness",  CMOWMaterial::TT_ROUGHNESS },
-    { "Height",     CMOWMaterial::TT_HEIGHT },
-    { "Metallic",   CMOWMaterial::TT_METALLIC },
+    { "MetRoughHeight",  CMOWMaterial::TT_METALLIC_ROUGHNESS_HEIGHT }
 };
+
+static std::map<CMOWMaterial::TEXTURE_TYPE, std::string> s_textureNameByType = {
+    { CMOWMaterial::TT_BASE_COLOR,                  "BaseColor" },
+    { CMOWMaterial::TT_NORMAL,                      "Normal" },
+    { CMOWMaterial::TT_METALLIC_ROUGHNESS_HEIGHT,   "MetRoughHeight" }
+};
+
+static std::string s_emptyString;
 
 //---------------------------------------------
 CMOWMaterial::CMOWMaterial(
@@ -118,6 +124,20 @@ void CMOWMaterial::TextureFileName(
     m_textureFilenameByTextureType[textureType] = textureFileName;
 }
 
+//------------------------------------------------------
+const std::string& CMOWMaterial::TextureTypeNameFromType(
+    TEXTURE_TYPE textureType
+    )
+{
+    auto itTextureTypeName = s_textureNameByType.find(textureType);
+
+    if( itTextureTypeName != s_textureNameByType.end() )
+    {
+        return itTextureTypeName->second;
+    }
+
+    return s_emptyString;
+}
 //---------------------------------------------
 const char* CMOWMaterial::Name() const
 {
@@ -225,6 +245,11 @@ CMOWMaterial::TEXTURE_TYPE CMOWMaterial::TextureTypeFromName(
     }
 
     return retVal;
+}
+//------------------------------------------------------
+const std::map<CMOWMaterial::TEXTURE_TYPE, std::string>& CMOWMaterial::Textures() const
+{
+    return m_textureFilenameByTextureType;
 }
 //------------------------------------------------------
 void CMOWMaterial::InitializeMOWClass()

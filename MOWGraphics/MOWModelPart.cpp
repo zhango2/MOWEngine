@@ -71,13 +71,17 @@ bool CMOWModelPart::CreateResources( ID3D11Device* device )
 
             if( material )
             {
-                ID3D11ShaderResourceView* texture = CMOWResourceManager::Instance()->GetOrCreateTexture(device,material->TextureFileName());
-                std::set<ID3D11ShaderResourceView*>::iterator itResource = resources.find(texture);
-                if( itResource == resources.end() )
+                for( auto itTexture : material->Textures() )
                 {
-                    m_resources.push_back(texture);
-                    resources.insert(texture);
+                    ID3D11ShaderResourceView* texture = CMOWResourceManager::Instance()->GetOrCreateTexture(device,material->TextureFileName(itTexture.first));
+                    std::set<ID3D11ShaderResourceView*>::iterator itResource = resources.find(texture);
+                    if( itResource == resources.end() )
+                    {
+                        m_resources.push_back(texture);
+                        resources.insert(texture);
+                    }
                 }
+                
             }
             
         }

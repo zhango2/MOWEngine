@@ -20,9 +20,8 @@ public:
         TT_NONE,
         TT_BASE_COLOR,
         TT_NORMAL,
-        TT_ROUGHNESS,
-        TT_METALLIC,
-        TT_HEIGHT
+        TT_METALLIC_ROUGHNESS_HEIGHT,
+        TT_LAST
     };
 
     CMOWMaterial();
@@ -86,6 +85,11 @@ public:
             TEXTURE_TYPE textureType = TT_BASE_COLOR
             );
 
+    static const std::string&
+        TextureTypeNameFromType(
+            TEXTURE_TYPE textureType
+            );
+
     const char*             
         Name(
             ) const;
@@ -130,6 +134,10 @@ public:
         TextureTypeFromName(
             const char* textureName
             );
+
+    const std::map<TEXTURE_TYPE,std::string>&
+        Textures(
+            ) const;
 
 
 protected:
