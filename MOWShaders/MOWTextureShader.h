@@ -31,10 +31,10 @@ protected:
             ID3D11Device* device
             );
 
-    virtual void                    
+    void 
         ApplyFXResources(
-            std::vector<ID3D11ShaderResourceView*>* resources
-            );
+            const std::vector<ID3D11ShaderResourceView*>* resources
+            ) override;
 
     virtual const char*             
         ShaderAlbedoTextureName(

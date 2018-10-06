@@ -3,6 +3,7 @@
 
 #include "MOWCommon/MOWTimer.h"
 #include <string>
+#include "MOWCommon/MOWTransform.h"
 
 class CMOWModel;
 class IMOWPhysicalEntity;
@@ -71,7 +72,8 @@ public:
         CreatePhysicalEntityFromModel(
             const CMOWModel* model,
             bool fixed,
-            bool collidable
+            bool collidable,
+            const CMOWTransform& transform = CMOWTransform()
             ) const;
 
     IMOWPhysicalEntity*

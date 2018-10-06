@@ -117,10 +117,10 @@ bool CMOWShader::Update(
     const DirectX::XMFLOAT4X4& lightViewMatrix,
     const DirectX::XMFLOAT4X4& lightProjectionMatrix,
     const LightBufferDefinition& lightDef,
-    const XMFLOAT3& cameraPos,
+    const DirectX::XMVECTOR& cameraPosition,
     int screenWidth,
     int screenHeight,
-    std::vector<ID3D11ShaderResourceView*>* resources,
+    const std::vector<ID3D11ShaderResourceView*>* resources,
     bool usePixelShader
     )
 {
@@ -190,7 +190,7 @@ bool CMOWShader::Update(
                 newLightViewMatrix,
                 newLightProjectionMatrix,
                 newLightDef,
-                cameraPos,
+                cameraPosition,
                 screenWidth,
                 screenHeight
                 );
@@ -206,7 +206,7 @@ bool CMOWShader::Update(
                 newLightViewMatrix,
                 newLightProjectionMatrix,
                 newLightDef,
-                cameraPos,
+                cameraPosition,
                 screenWidth,
                 screenHeight
                 );
@@ -266,10 +266,10 @@ bool CMOWShader::Update(
     const DirectX::XMFLOAT4X4& lightProjectionMatrix, 
     const ShaderLight& light,
     const ShaderMaterial& material,
-    const DirectX::XMFLOAT3 cameraPosition, 
+    const DirectX::XMVECTOR& cameraPosition, 
     int screenWidth, 
     int screenHeight, 
-    std::vector<ID3D11ShaderResourceView*>* resources,
+    const std::vector<ID3D11ShaderResourceView*>* resources,
     bool usePixelShader
     )
 {
@@ -297,7 +297,12 @@ bool CMOWShader::Update(
                 m_fxVariables.screenHeight->SetInt(screenHeight);
                 m_fxVariables.lightView->SetMatrix(reinterpret_cast<float*>(&XMLoadFloat4x4(&lightViewMatrix)));
                 m_fxVariables.lightProjection->SetMatrix(reinterpret_cast<float*>(&XMLoadFloat4x4(&lightProjectionMatrix)));
-                m_fxVariables.cameraPosition->SetRawValue(&cameraPosition,0,sizeof(cameraPosition));
+
+                
+                XMFLOAT3 cameraPos;
+                XMStoreFloat3(&cameraPos, cameraPosition);
+
+                m_fxVariables.cameraPosition->SetRawValue(&cameraPos,0,sizeof(cameraPos));
                 if( m_fxVariables.material )
                 {
                     m_fxVariables.material->SetRawValue(&material,0,sizeof(ShaderMaterial));
@@ -381,7 +386,7 @@ HRESULT CMOWShader::SetupBuffer(
     XMMATRIX& lightViewMatrix,
     XMMATRIX& lightProjectionMatrix,
     LightBufferDefinition& lightDef,
-    XMFLOAT3 cameraPos,
+    const DirectX::XMVECTOR& cameraPosition,
     int screenWidth,
     int screenHeight
     )
@@ -550,7 +555,7 @@ const char* CMOWShader::FxTechName()
     return m_fxTechName.c_str();
 }
 //---------------------------------------
-void CMOWShader::ApplyFXResources(std::vector<ID3D11ShaderResourceView*>* resources)
+void CMOWShader::ApplyFXResources(const std::vector<ID3D11ShaderResourceView*>* resources)
 {
     //Do nothing. Override to implement
 }

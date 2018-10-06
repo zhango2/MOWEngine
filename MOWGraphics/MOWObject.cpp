@@ -7,12 +7,13 @@ using namespace DirectX;
 
 CMOWObject::CMOWObject()
 {
-    
-    memset(&m_position,0,sizeof(XMFLOAT4));
-    memset(&m_rotation,0,sizeof(XMFLOAT4));
     m_scale = XMFLOAT3(1.0f,1.0f,1.0f);
 
-    XMStoreFloat4(&m_rotation,XMQuaternionIdentity());
+    m_rotation = XMQuaternionIdentity();
+    m_totalRotation = XMQuaternionIdentity();
+    m_position = XMVectorSet(0.0f,0.0f,0.0f, 1.0f);
+    m_totalPosition = XMVectorSet(0.0f,0.0f,0.0f, 1.0f);
+
     XMStoreFloat4x4(&m_scaleMatrix,XMMatrixIdentity());
     XMStoreFloat4x4(&m_positionMatrix,XMMatrixIdentity());
     XMStoreFloat4x4(&m_rotationMatrix,XMMatrixIdentity());
@@ -29,7 +30,7 @@ void CMOWObject::Position(
     float zPos
     )
 {
-    m_position = XMFLOAT3(xPos, yPos, zPos);
+    m_position = XMVectorSet(xPos, yPos, zPos, 1.0f);
 }
 //------------------------------------------------------
 void CMOWObject::Rotation(
@@ -38,24 +39,24 @@ void CMOWObject::Rotation(
     float zRot
     )
 {
-    m_rotation = XMFLOAT4(xRot, yRot, zRot,1.0f);
-
+    XMFLOAT4 temp = XMFLOAT4(xRot,yRot, zRot, 1.0f);
+    m_rotation = XMLoadFloat4(&temp);
 }
 //------------------------------------------------------
-const XMFLOAT3& CMOWObject::Position() const
+const XMVECTOR& CMOWObject::Position() const
 {
     return m_position;
 }
 //------------------------------------------------------
-const XMFLOAT4& CMOWObject::Rotation() const
+const XMVECTOR& CMOWObject::Rotation() const
 {
     return m_rotation;
 }
 //------------------------------------------------------
 void CMOWObject::Update()
 {
-    XMStoreFloat4x4(&MutableRotationMatrix(),XMMatrixRotationQuaternion(XMLoadFloat4(&Rotation())));
-    XMStoreFloat4x4(&MutablePositionMatrix(),XMMatrixTranslation(Position().x, Position().y, Position().z));
+    XMStoreFloat4x4(&MutableRotationMatrix(),XMMatrixRotationQuaternion(Rotation()));
+    XMStoreFloat4x4(&MutablePositionMatrix(),XMMatrixTranslation(XMVectorGetX(Position()), XMVectorGetY(Position()), XMVectorGetZ(Position())));
     XMStoreFloat4x4(&MutableScaleMatrix(),XMMatrixScaling(Scale().x, Scale().y, Scale().z));
 }
 //------------------------------------------------------

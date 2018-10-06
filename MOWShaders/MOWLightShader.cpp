@@ -74,7 +74,7 @@ HRESULT CMOWLightShader::SetupBuffer(
     XMMATRIX& lightViewMatrix,
     XMMATRIX& lightProjectionMatrix,
     LightBufferDefinition& lightDef,
-    XMFLOAT3 cameraPos,
+    const DirectX::XMVECTOR& cameraPosition,
     int screenWidth,
     int screenHeight
     )
@@ -87,7 +87,7 @@ HRESULT CMOWLightShader::SetupBuffer(
                                             lightViewMatrix,
                                             lightProjectionMatrix,
                                             lightDef,
-                                            cameraPos,
+                                            cameraPosition,
                                             screenWidth,
                                             screenHeight
                                             );
@@ -107,7 +107,7 @@ HRESULT CMOWLightShader::SetupBuffer(
         {
             cameraPosBufferDef = reinterpret_cast<CameraBufferDefinition*>(mappedResource.pData);
 
-            cameraPosBufferDef->cameraPosition = cameraPos;
+            XMStoreFloat3(&cameraPosBufferDef->cameraPosition, cameraPosition);
             cameraPosBufferDef->padding = 0.0f;
 
             context->Unmap(m_cameraPosBuffer,0);
@@ -190,7 +190,7 @@ void CMOWLightShader::CreateSamplerStates(
 }
 //---------------------------------------
 void CMOWLightShader::ApplyFXResources(
-    std::vector<ID3D11ShaderResourceView*>* resources
+    const std::vector<ID3D11ShaderResourceView*>* resources
     )
 {
     if( resources && resources->size() >= 4 && !m_isInitialized)

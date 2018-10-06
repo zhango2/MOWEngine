@@ -58,11 +58,11 @@ public:
         Update(
             );            
 
-    virtual const DirectX::XMFLOAT3&      
+    virtual const DirectX::XMVECTOR&      
         Position(
             ) const;
 
-    virtual const DirectX::XMFLOAT4&      
+    virtual const DirectX::XMVECTOR&      
         Rotation(
             ) const;
     
@@ -117,14 +117,20 @@ public:
 protected:
 
     
-    mutable DirectX::XMFLOAT3           
+    mutable DirectX::XMVECTOR           
         m_position;
 
     mutable DirectX::XMFLOAT3           
         m_scale;
 
-    mutable DirectX::XMFLOAT4           
+    mutable DirectX::XMVECTOR           
         m_rotation;
+
+    mutable DirectX::XMVECTOR           
+        m_totalRotation;
+
+    mutable DirectX::XMVECTOR           
+        m_totalPosition;
 
     DirectX::XMFLOAT4X4         
         m_rotationMatrix;

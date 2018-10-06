@@ -39,7 +39,7 @@ public:
             const DirectX::XMFLOAT4X4& projectionMatrix,
             const DirectX::XMFLOAT4X4& lightViewMatrix,
             const DirectX::XMFLOAT4X4& lightProjectionMatrix,
-            const DirectX::XMFLOAT3& cameraPosition,
+            const DirectX::XMVECTOR& cameraPosition,
             const CMOWShader::LightBufferDefinition& lightBuff,
             int screenWidth,
             int screenHeight,

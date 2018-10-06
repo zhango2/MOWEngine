@@ -8,6 +8,7 @@
 #include "MOWCommon.h"
 
 class CMOWFace;
+class CMOWVector;
 
 typedef std::vector<CMOWFace*> face_vector;
 typedef std::vector<ID3D11ShaderResourceView*> texture_vector;
@@ -82,7 +83,7 @@ public:
             );
     
     const std::vector<ID3D11ShaderResourceView*>&
-        GetFaceResources(
+        Resources(
             ) const;
 
     bool                        Serialize(std::ofstream& fOut);

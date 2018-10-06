@@ -92,7 +92,7 @@ public:
             const DirectX::XMFLOAT4X4& projectionMatrix,
             const DirectX::XMFLOAT4X4& lightViewMatrix,
             const DirectX::XMFLOAT4X4& lightProjectionMatrix,
-            const DirectX::XMFLOAT3& cameraPosition,
+            const DirectX::XMVECTOR& cameraPosition,
             CMOWShader::LightBufferDefinition& lightBuff,
             int screenWidth,
             int screenHeight,
@@ -108,7 +108,7 @@ public:
             const DirectX::XMFLOAT4X4& projectionMatrix,
             const DirectX::XMFLOAT4X4& lightViewMatrix,
             const DirectX::XMFLOAT4X4& lightProjectionMatrix,
-            const DirectX::XMFLOAT3& cameraPosition,
+            const DirectX::XMVECTOR& cameraPosition,
             ShaderLight& light,
             int screenWidth,
             int screenHeight,
@@ -138,7 +138,7 @@ public:
 
     void                                
         Rotation(
-            const DirectX::XMFLOAT4& rotation
+            const DirectX::XMVECTOR& rotation
             );
 
     virtual void                                
@@ -208,11 +208,11 @@ public:
         FaceResources(
             ) const;
 
-    virtual const DirectX::XMFLOAT3&                  
+    virtual const DirectX::XMVECTOR&                  
         Position(
             )const override;
 
-    virtual const DirectX::XMFLOAT4&                  
+    virtual const DirectX::XMVECTOR&                  
         Rotation(
             )const override;
     
@@ -317,6 +317,8 @@ protected:
     virtual void                                
         CreateBoundingVolumes(
             );
+
+    
 
     
 

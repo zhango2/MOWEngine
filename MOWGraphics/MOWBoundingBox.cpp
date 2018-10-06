@@ -3,6 +3,8 @@
 #include "MOWModelPart.h"
 #include "MOWResourceManager.h"
 
+using namespace DirectX;
+
 CMOWBoundingBox::CMOWBoundingBox()
 {
 
@@ -46,19 +48,19 @@ bool CMOWBoundingBox::IsInside(
 {
 
     
-    float myMinX = Position().x - (Width() / 2.0f);
-    float myMaxX = Position().x + (Width() / 2.0f);
+    float myMinX = XMVectorGetX(Position()) - (Width() / 2.0f);
+    float myMaxX = XMVectorGetX(Position()) + (Width() / 2.0f);
     
-    float myMinY = Position().y - (Height() / 2.0f);
-    float myMaxY = Position().y + (Height() / 2.0f);
+    float myMinY = XMVectorGetY(Position()) - (Height() / 2.0f);
+    float myMaxY = XMVectorGetY(Position()) + (Height() / 2.0f);
 
-    float myMinZ = Position().z - (Depth() / 2.0f);
-    float myMaxZ = Position().z + (Depth() / 2.0f);
+    float myMinZ = XMVectorGetZ(Position()) - (Depth() / 2.0f);
+    float myMaxZ = XMVectorGetZ(Position()) + (Depth() / 2.0f);
 
-    bool retVal = box.Position().x >= myMinX && box.Position().x <= myMaxX;
+    bool retVal = XMVectorGetX(box.Position()) >= myMinX && XMVectorGetX(box.Position()) <= myMaxX;
 
-    retVal = retVal ? box.Position().y >= myMinY && box.Position().y <= myMaxY : retVal;
-    retVal = retVal ? box.Position().z >= myMinZ && box.Position().z <= myMaxZ : retVal;
+    retVal = retVal ? XMVectorGetY(box.Position()) >= myMinY && XMVectorGetY(box.Position()) <= myMaxY : retVal;
+    retVal = retVal ? XMVectorGetZ(box.Position()) >= myMinZ && XMVectorGetZ(box.Position()) <= myMaxZ : retVal;
 
     return retVal;
 }
@@ -67,7 +69,7 @@ void CMOWBoundingBox::Render(
     ID3D11DeviceContext* context, 
     const DirectX::XMFLOAT4X4& viewMatrix, 
     const DirectX::XMFLOAT4X4& projectionMatrix, 
-    const DirectX::XMFLOAT3& cameraPosition, 
+    const DirectX::XMVECTOR& cameraPosition, 
     int screenWidth, 
     int screenHeight
     )const

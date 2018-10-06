@@ -13,6 +13,7 @@
 #include "MOWCommon/MOWVector.h"
 #include "MOWPhysics/IMOWPhysicalEntity.h"
 #include "MOWPhysics/MOWPhysics.h"
+#include "MOWCommon/MOWTransform.h"
 
 using namespace DirectX;
 
@@ -74,6 +75,7 @@ bool CMOWModel::Initialize(ID3D11Device* device)
     if( m_boundingBox )
     {
         m_boundingBox->Initialize(device);
+        m_boundingBox->Update();
     }
 
     return retVal;
@@ -81,7 +83,6 @@ bool CMOWModel::Initialize(ID3D11Device* device)
 //---------------------------------------------
 void CMOWModel::PopulateVerticesAndIndices()
 {
-    //Do nothing
 }
 //---------------------------------------------
 bool CMOWModel::Render(
@@ -91,7 +92,7 @@ bool CMOWModel::Render(
     const XMFLOAT4X4& projectionMatrix,
     const XMFLOAT4X4& lightViewMatrix,
     const XMFLOAT4X4& lightProjectionMatrix,
-    const XMFLOAT3& cameraPosition,
+    const DirectX::XMVECTOR& cameraPosition,
     CMOWShader::LightBufferDefinition& lightBuff,
     int screenWidth,
     int screenHeight,
@@ -141,7 +142,7 @@ bool CMOWModel::Render(
     const DirectX::XMFLOAT4X4& projectionMatrix, 
     const DirectX::XMFLOAT4X4& lightViewMatrix, 
     const DirectX::XMFLOAT4X4& lightProjectionMatrix, 
-    const DirectX::XMFLOAT3& cameraPosition, 
+    const DirectX::XMVECTOR& cameraPosition, 
     ShaderLight& light, 
     int screenWidth, 
     int screenHeight, 
@@ -172,7 +173,7 @@ bool CMOWModel::Render(
                        cameraPosition,
                        screenWidth,
                        screenHeight,
-                       resources ? resources : FaceResources(),
+                       resources ? resources : &itParts.second->Resources(),
                        usePixelShader
                        );
 
@@ -298,7 +299,7 @@ void CMOWModel::Position(
     }
     else
     {
-        m_position = XMFLOAT3(xPos,yPos,zPos);
+        m_position = XMVectorSet(xPos,yPos,zPos, 1.0f);
     }
     
 }
@@ -315,7 +316,7 @@ void CMOWModel::Rotation(
     }
     else
     {
-        m_rotation = XMFLOAT4((float)XMConvertToRadians(xRot),(float)XMConvertToRadians(yRot),(float)XMConvertToRadians(zRot),1.0f);
+        m_rotation = XMQuaternionRotationRollPitchYaw((float)XMConvertToRadians(xRot),(float)XMConvertToRadians(yRot),(float)XMConvertToRadians(zRot));
     }
     if( m_boundingBox )
     {
@@ -325,35 +326,40 @@ void CMOWModel::Rotation(
 }
 //---------------------------------------------
 void CMOWModel::Rotation( 
-    const DirectX::XMFLOAT4& rotation 
+    const DirectX::XMVECTOR& rotation 
     )
 {
+    //m_rotation = XMQuaternionRotationRollPitchYaw(XMVectorGetX(rotation), XMVectorGetY(rotation), XMVectorGetZ(rotation));
     m_rotation = rotation;
 }
 //---------------------------------------------
-const XMFLOAT3& CMOWModel::Position() const
+const XMVECTOR& CMOWModel::Position() const
 {
-
+    m_totalPosition = m_position;
     if( PhysicalBody() )
     {
         CMOWVector pos = PhysicalBody()->Position();
-        m_position = XMFLOAT3(pos.X(),pos.Y(),pos.Z());
+        XMVECTOR position = XMVectorSet(pos.X(),pos.Y(),pos.Z(), 1.0);
+        m_totalPosition = XMVectorAdd(position, m_position );
+
     }
     if( m_boundingBox )
     {
-        m_boundingBox->Position(m_position.x,m_position.y,m_position.z);
+        m_boundingBox->Position(XMVectorGetX(m_position), XMVectorGetY(m_position), XMVectorGetZ(m_position));
     }
-    return m_position;
+    return m_totalPosition;
 }
 //---------------------------------------------
-const XMFLOAT4& CMOWModel::Rotation() const
+const XMVECTOR& CMOWModel::Rotation() const
 {
     
+    m_totalRotation = m_rotation;
     if( PhysicalBody() )
     {
         CMOWVector rot = PhysicalBody()->Rotation();
-        m_rotation = XMFLOAT4(rot.X(),rot.Y(),rot.Z(),rot.W());
-        
+        XMVECTOR physicalQuat = XMVectorSet(rot.X(), rot.Y(), rot.Z(), rot.W());
+
+        m_totalRotation = XMQuaternionMultiply(physicalQuat, m_rotation);
     }
     if( m_boundingBox )
     {
@@ -361,7 +367,7 @@ const XMFLOAT4& CMOWModel::Rotation() const
     }
 
     
-    return m_rotation;
+    return m_totalRotation;
 }
 //---------------------------------------------
 void CMOWModel::AngularVelocity( 
@@ -428,7 +434,7 @@ std::vector<ID3D11ShaderResourceView*>* CMOWModel::FaceResources() const
     {
         for( auto itParts :  m_parts )
         {
-            const std::vector<ID3D11ShaderResourceView*>& partTextures = itParts.second->GetFaceResources();
+            const std::vector<ID3D11ShaderResourceView*>& partTextures = itParts.second->Resources();
 
             for( ID3D11ShaderResourceView* texture : partTextures )
             {
@@ -958,13 +964,17 @@ void CMOWModel::CreateBoundingVolumes()
         float yCenter = (maxY + minY) / 2.0f;
         float zCenter = (maxZ + minZ) / 2.0f;
 
-        XMFLOAT3 pos = Position();
+        
+        float x = XMVectorGetX(Position());
+        float y = XMVectorGetY(Position());
+        float z = XMVectorGetZ(Position());
 
         XMVECTOR res;
         XMVECTOR temp = XMVectorSet(xCenter,yCenter,zCenter,1.0f);
         res = XMVector3Transform(temp,XMLoadFloat4x4(&WorldMatrix()));
 
-        CreateBoundingBox(pos.x,pos.y,pos.z,xLength,yLength,zLength);
+        CreateBoundingBox(x,y,z,xLength,yLength,zLength);
+        m_boundingBox->Position(x, y, z);
 
         float boxVolume = xLength*yLength*zLength;
         float diagonal = sqrt( (xLength*xLength) + (yLength*yLength) + (zLength*zLength) );
@@ -1096,7 +1106,12 @@ void CMOWModel::CreatePhysicalBody(
     bool collidable
     )
 {
-    m_physicalBody = physics.CreatePhysicalEntityFromModel(this,fixed,collidable);
+    CMOWTransform transform(
+        CMOWVector(XMVectorGetX(Position()),XMVectorGetY(Position()), XMVectorGetZ(Position()), XMVectorGetW(Position())),
+        CMOWVector(XMVectorGetX(Rotation()),XMVectorGetY(Rotation()), XMVectorGetZ(Rotation()), XMVectorGetW(Rotation())) 
+    );
+    
+    m_physicalBody = physics.CreatePhysicalEntityFromModel(this,fixed,collidable, transform);
 }
 //------------------------------------------------------
 long CMOWModel::FindOppositeIndex(

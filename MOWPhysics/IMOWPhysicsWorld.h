@@ -2,6 +2,7 @@
 #define IDXPhysicsWorld_H
 
 #include "IMOWPhysicalEntity.h"
+#include "MOWCommon/MOWTransform.h"
 #include "MOWCommon/MOWVector.h"
 #include <string>
 
@@ -61,7 +62,8 @@ public:
         ConstructPhysicalEntityFromModel(
             const CMOWModel* model,
             bool fixed,
-            bool collidable
+            bool collidable,
+            const CMOWTransform& transform = CMOWTransform()
             ) = 0;
 
     virtual std::string

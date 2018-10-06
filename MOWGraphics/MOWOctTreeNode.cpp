@@ -130,7 +130,7 @@ void CMOWOctTreeNode::Render(
     ID3D11DeviceContext* context,
     const DirectX::XMFLOAT4X4& viewMatrix,
     const DirectX::XMFLOAT4X4& projectionMatrix,
-    const DirectX::XMFLOAT3& cameraPosition,
+    const DirectX::XMVECTOR& cameraPosition,
     int screenWidth,
     int screenHeight
 )

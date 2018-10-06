@@ -4,11 +4,13 @@ add_library(MOWCommon
   MOWTimer.cpp
   MOWVector.cpp
   MOWInput.cpp
+  MOWTransform.cpp
 
   MOWStringConverter.h
   MOWTimer.h
   MOWVector.h
   MOWInput.h
+  MOWTransform.h
 )
 
 include_directories("${BASE_DIR}")

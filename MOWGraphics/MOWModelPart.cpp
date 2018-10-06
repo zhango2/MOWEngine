@@ -6,6 +6,7 @@
 #include "MOWCommon/MOWSerializer.h"
 #include "MOWMessages/MOWCommon.pb.h"
 #include "MOWMessages/MOWGraphics.pb.h"
+#include "MOWCommon/MOWVector.h"
 
 
 
@@ -61,31 +62,26 @@ bool CMOWModelPart::CreateResources( ID3D11Device* device )
     memset(&vertexData,0,sizeof(D3D11_SUBRESOURCE_DATA));
     memset(&indexData,0,sizeof(D3D11_SUBRESOURCE_DATA));
 
+    CMOWMaterial* material = CMOWResourceManager::Instance()->Material(MaterialName());
+
+    std::set<ID3D11ShaderResourceView*> resources;
+    if( material )
+    {
+        for( auto itTexture : material->Textures() )
+        {
+            ID3D11ShaderResourceView* texture = CMOWResourceManager::Instance()->GetOrCreateTexture(device,material->TextureFileName(itTexture.first));
+            std::set<ID3D11ShaderResourceView*>::iterator itResource = resources.find(texture);
+            if( itResource == resources.end() && texture )
+            {
+                m_resources.push_back(texture);
+                resources.insert(texture);
+            }
+        }
+                
+    }
+
     if( Vertices().size() && Indices().size() )
     {
-        std::set<ID3D11ShaderResourceView*> resources;
-        for( size_t i = 0; i<Faces().size(); i++ )
-        {
-            CMOWFace* face = Faces()[i];
-            CMOWMaterial* material = CMOWResourceManager::Instance()->Material(MaterialName());
-
-            if( material )
-            {
-                for( auto itTexture : material->Textures() )
-                {
-                    ID3D11ShaderResourceView* texture = CMOWResourceManager::Instance()->GetOrCreateTexture(device,material->TextureFileName(itTexture.first));
-                    std::set<ID3D11ShaderResourceView*>::iterator itResource = resources.find(texture);
-                    if( itResource == resources.end() )
-                    {
-                        m_resources.push_back(texture);
-                        resources.insert(texture);
-                    }
-                }
-                
-            }
-            
-        }
-
         // Set up the description of the static vertex buffer.
         vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
         vertexBufferDesc.ByteWidth = sizeof(Vertex) * Vertices().size();
@@ -207,7 +203,7 @@ const face_vector& CMOWModelPart::Faces() const
     return m_faces;
 }
 //---------------------------------------------
-const std::vector<ID3D11ShaderResourceView*>& CMOWModelPart::GetFaceResources() const
+const std::vector<ID3D11ShaderResourceView*>& CMOWModelPart::Resources() const
 {
     return m_resources;   
 }

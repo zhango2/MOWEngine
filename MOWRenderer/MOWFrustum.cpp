@@ -33,6 +33,7 @@ void CMOWFrustum::Update(
 
     // Calculate near plane of frustum.
     // and far plane of frustum.
+    
     float sign = 1.0f;
     for (int i = 0; i < 2; i++)
     {
@@ -46,7 +47,7 @@ void CMOWFrustum::Update(
     }
 
     // Calculate left and right plane of frustum.
-
+    
     for (int i = 2; i < 4; i++)
     {
         sign = i == 3 ? -1.0f : 1.0f;
@@ -123,6 +124,8 @@ bool CMOWFrustum::IsBoxInFrustum(
     // Check if any one point of the cube is in the view frustum.
     for(int i=0; i<6; i++) 
     {
+        XMVECTOR test = XMPlaneDotCoord(m_planes[i], XMVectorSet((xCenter - xLength), (yCenter - yLength), (zCenter - zLength),1.0f));
+
         if(XMVectorGetX(XMPlaneDotCoord(m_planes[i], XMVectorSet((xCenter - xLength), (yCenter - yLength), (zCenter - zLength),1.0f))) >= 0.0f ||
            XMVectorGetX(XMPlaneDotCoord(m_planes[i], XMVectorSet((xCenter + xLength), (yCenter - yLength), (zCenter - zLength),1.0f))) >= 0.0f ||
            XMVectorGetX(XMPlaneDotCoord(m_planes[i], XMVectorSet((xCenter - xLength), (yCenter + yLength), (zCenter - zLength),1.0f))) >= 0.0f ||

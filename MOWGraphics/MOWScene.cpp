@@ -263,7 +263,7 @@ void CMOWScene::RenderLights(
         CMOWLight* light = (*itLight);
         light->UpdateViewPoint();
 
-        if( IsModelInFrustum(light->Model()) )
+        if( 1/*IsModelInFrustum(light->Model())*/ )
         {
             renderCB(light,this,renderArg);
             if( m_gatherStatistics )
@@ -319,9 +319,9 @@ bool CMOWScene::IsModelInFrustum(
     }
     else if( model->BoundingShape() == PbMOWGraphics::PMBS_BOX )
     {
-        isInFrustum = m_frustum.IsBoxInFrustum(model->BoundingBox()->Position().x,
-            model->BoundingBox()->Position().y,
-            model->BoundingBox()->Position().z,
+        isInFrustum = m_frustum.IsBoxInFrustum(XMVectorGetX(model->BoundingBox()->Position()),
+            XMVectorGetY(model->BoundingBox()->Position()),
+            XMVectorGetZ(model->BoundingBox()->Position()),
             model->BoundingBox()->Width(),
             model->BoundingBox()->Height(),
             model->BoundingBox()->Depth());
@@ -345,64 +345,30 @@ void CMOWScene::CreateOctTreeFromFixedObjects()
     min.y = 999999.0f;
     min.z = 999999.0f;
 
-    if( m_fixedModels.size() == 1 )
+    
+
+    
+    while (fixedObjIterator != m_fixedModels.end())
     {
         CMOWModel* model = (*fixedObjIterator);
         CMOWBoundingBox* box = model->BoundingBox();
 
-        XMFLOAT3 pos = box->Position();
+        float x = XMVectorGetX(box->Position());
+        float y = XMVectorGetY(box->Position());
+        float z = XMVectorGetZ(box->Position());
 
-        max.x = pos.x;
-        max.y = pos.y;
-        max.z = pos.z;
+        max.x = x >= max.x ? x + box->Width() / 2.0f : max.x;
+        min.x = x <= min.x ? x - box->Width() / 2.0f : min.x;
 
-        min.x = 0;
-        min.y = 0;
-        min.z = 0;
+        max.y = y >= max.y ? y + box->Height() / 2.0f : max.y;
+        min.y = y <= min.y ? y - box->Height() / 2.0f : min.y;
+
+        max.z = z >= max.z ? z + box->Depth() / 2.0f : max.z;
+        min.z = z <= min.z ? z - box->Depth() / 2.0f : min.z;
+        
+        fixedObjIterator++;
     }
-
-    else
-    {
-        while (fixedObjIterator != m_fixedModels.end())
-        {
-            CMOWModel* model = (*fixedObjIterator);
-            CMOWBoundingBox* box = model->BoundingBox();
-
-            XMFLOAT3 pos = box->Position();
-
-            if (pos.x >= max.x)
-            {
-                max.x = pos.x;
-            }
-
-            if (pos.x <= min.x)
-            {
-                min.x = pos.x;
-            }
-
-            if (pos.y >= max.y)
-            {
-                max.y = pos.y;
-            }
-
-            if (pos.y <= min.y)
-            {
-                min.y = pos.y;
-            }
-
-            if (pos.z >= max.z)
-            {
-                max.z = pos.z;
-            }
-
-            if (pos.z <= min.z)
-            {
-                min.z = pos.z;
-            }
-
-            fixedObjIterator++;
-        }
-    }
+    
     
     XMVECTOR maxVec = XMVectorSet(max.x,max.y,max.z,1.0f);
     XMVECTOR minVec = XMVectorSet(min.x,min.y,min.z,1.0f);
@@ -520,9 +486,9 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
     if( node )
     {
         s_iterations++;
-        if( m_frustum.IsBoxInFrustum(node->BoundingBox()->Position().x,
-            node->BoundingBox()->Position().y,
-            node->BoundingBox()->Position().z,
+        if( m_frustum.IsBoxInFrustum(XMVectorGetX(node->BoundingBox()->Position()),
+            XMVectorGetY(node->BoundingBox()->Position()),
+            XMVectorGetZ(node->BoundingBox()->Position()),
             node->BoundingBox()->Width(),
             node->BoundingBox()->Height(),
             node->BoundingBox()->Depth()) )
@@ -537,7 +503,6 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
                     model->Update();
                     if( IsModelInFrustum(model) )
                     {
-
                         model->Render(context,
                             shader,
                             ActiveCamera()->GetViewMatrix(),
@@ -587,7 +552,10 @@ void CMOWScene::RenderBoundingVolumes(
     int screenHeight
     )
 {
-    RenderBoundingVolumes(m_octTreeRoot->Models(),context,projectionMatrix,screenWidth,screenHeight);
+    if( m_octTreeRoot )
+    {
+        RenderBoundingVolumes(m_octTreeRoot->Models(),context,projectionMatrix,screenWidth,screenHeight);
+    }
     RenderBoundingVolumes(m_models,context,projectionMatrix,screenWidth,screenHeight);
 }
 //---------------------------------------

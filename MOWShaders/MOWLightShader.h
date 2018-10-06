@@ -45,7 +45,7 @@ protected:
             DirectX::XMMATRIX& lightViewMatrix,
             DirectX::XMMATRIX& lightProjectionMatrix,
             LightBufferDefinition& lightDef,
-            DirectX::XMFLOAT3 cameraPos,
+            const DirectX::XMVECTOR& cameraPosition,
             int screenWidth,
             int screenHeight
             );
@@ -56,15 +56,15 @@ protected:
             std::vector<ID3D11SamplerState*>& samplerStates
             );
 
-    virtual void                    
+    void 
         ApplyFXResources(
-            std::vector<ID3D11ShaderResourceView*>* resources
-            );
+            const std::vector<ID3D11ShaderResourceView*>* resources
+            ) override;
 
-    virtual bool                    
+    bool                    
         CreateFX(
             ID3D11Device* device
-            );
+            ) override;
 
 
 

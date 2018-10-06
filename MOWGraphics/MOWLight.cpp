@@ -191,7 +191,7 @@ void CMOWLight::UpdateViewPoint()
         XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f,1.0f);
 
         // Create the view matrix from the three updated vectors.
-        XMStoreFloat4x4(&MutableViewMatrix(),XMMatrixLookAtLH(XMLoadFloat3(&(GeometryObject()->Position())), m_lookAt, up));
+        XMStoreFloat4x4(&MutableViewMatrix(),XMMatrixLookAtLH(GeometryObject()->Position(), m_lookAt, up));
 
         XMStoreFloat4x4(&MutableProjectionMatrix(),XMMatrixOrthographicLH(20.0f, 20.0f, SHADOWMAP_NEAR, SHADOWMAP_DEPTH));
     }
@@ -224,8 +224,11 @@ ShaderLight CMOWLight::AsShaderLight()
     light.m_diffuse = m_diffuseColor;
     light.m_specular = m_specularColor;
     light.m_lightType = m_type;
-    light.m_position = GeometryObject() ? GeometryObject()->Position() : XMFLOAT3(0.0f,0.0f,0.0f);
+
+    XMVECTOR posVector = GeometryObject() ? GeometryObject()->Position() : XMVectorSet(0.0f,0.0f,0.0f, 1.0f);
+    XMStoreFloat3(&light.m_position, posVector);
     light.m_attenuation = m_attenuation;
+
     //TODO: range etc
 
     return light;
@@ -376,7 +379,7 @@ CMOWVariant* CMOWLight::GetPositionCB(
 
     if( pThis->HasPosition() && pThis->GeometryObject() )
     {
-        val = new CMOWVector(pThis->GeometryObject()->Position().x,pThis->GeometryObject()->Position().y,pThis->GeometryObject()->Position().z);
+        val = new CMOWVector(XMVectorGetX(pThis->GeometryObject()->Position()),XMVectorGetY(pThis->GeometryObject()->Position()),XMVectorGetZ(pThis->GeometryObject()->Position()));
         retVal = new CMOWVariant(val);
     }
 

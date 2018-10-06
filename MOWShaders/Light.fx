@@ -202,9 +202,9 @@ void ComputePointLightPBR(
     //float ao = 0.3f;
 
     color = (kD * albedo / PI + specular) * radiance * NdotL;
-    /*float3 ambient = float3(0.003f, 0.003f, 0.003f) * albedo;
+    float3 ambient = float3(0.003f, 0.003f, 0.003f) * albedo;
 
-    color += ambient;*/
+    color += ambient;
     float colorPow = 1.0f/2.2f;
 
     color = color / (color + float3(1.0f, 1.0f, 1.0f));

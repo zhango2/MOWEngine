@@ -48,7 +48,7 @@ HRESULT CMOWDeferredShader::SetupBuffer(
     XMMATRIX& lightViewMatrix, 
     XMMATRIX& lightProjectionMatrix, 
     LightBufferDefinition& lightDef, 
-    XMFLOAT3 cameraPos,
+    const DirectX::XMVECTOR& cameraPosition,
     int screenWidth,
     int screenHeight
     )
@@ -62,7 +62,7 @@ HRESULT CMOWDeferredShader::SetupBuffer(
                            lightViewMatrix,
                            lightProjectionMatrix,
                            lightDef,
-                           cameraPos,
+                           cameraPosition,
                            screenWidth,
                            screenHeight
                            );
@@ -77,7 +77,7 @@ HRESULT CMOWDeferredShader::SetupBuffer(
         {
             cameraPosBufferDef = reinterpret_cast<CameraBufferDefinition*>(mappedResource.pData);
 
-            cameraPosBufferDef->cameraPosition = cameraPos;
+            XMStoreFloat3(&cameraPosBufferDef->cameraPosition, cameraPosition);
             cameraPosBufferDef->padding = 0.0f;
 
             context->Unmap(m_cameraPosBuffer,0);

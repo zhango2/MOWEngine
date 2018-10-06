@@ -93,10 +93,10 @@ public:
             const DirectX::XMFLOAT4X4& lightViewMatrix,
             const DirectX::XMFLOAT4X4& lightProjectionMatrix,
             const LightBufferDefinition& lightDef,
-            const DirectX::XMFLOAT3& cameraPosition,
+            const DirectX::XMVECTOR& cameraPosition,
             int screenWidth,
             int screenHeight,
-            std::vector<ID3D11ShaderResourceView*>* resources = 0,
+            const std::vector<ID3D11ShaderResourceView*>* resources = 0,
             bool usePixelShader = true
             );
 
@@ -110,10 +110,10 @@ public:
             const DirectX::XMFLOAT4X4& lightProjectionMatrix,
             const ShaderLight& light,
             const ShaderMaterial& material,
-            const DirectX::XMFLOAT3 cameraPosition,
+            const DirectX::XMVECTOR& cameraPosition,
             int screenWidth,
             int screenHeight,
-            std::vector<ID3D11ShaderResourceView*>* resources = 0,
+            const std::vector<ID3D11ShaderResourceView*>* resources = 0,
             bool usePixelShader = true
             );
 
@@ -189,7 +189,7 @@ protected:
             DirectX::XMMATRIX& lightViewMatrix,
             DirectX::XMMATRIX& lightProjectionMatrix,
             LightBufferDefinition& lightDef,
-            DirectX::XMFLOAT3 cameraPos,
+            const DirectX::XMVECTOR& cameraPosition,
             int screenWidth,
             int screenHeight
             );
@@ -203,9 +203,8 @@ protected:
             ID3D11Device* device
             );
 
-    virtual void                    
-        ApplyFXResources(
-            std::vector<ID3D11ShaderResourceView*>* resources
+    virtual void ApplyFXResources(
+            const std::vector<ID3D11ShaderResourceView*>* resources
             );
 
     D3D11_INPUT_ELEMENT_DESC        

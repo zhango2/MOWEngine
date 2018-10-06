@@ -149,7 +149,7 @@ void CMOW2DObject::Render(
     const XMFLOAT4X4& projectionMatrix,
     const XMFLOAT4X4& lightViewMatrix,
     const XMFLOAT4X4& lightProjectionMatrix,
-    const XMFLOAT3& cameraPosition,
+    const DirectX::XMVECTOR& cameraPosition,
     const CMOWShader::LightBufferDefinition& lightBuff,
     int screenWidth,
     int screenHeight,

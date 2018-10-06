@@ -6,7 +6,7 @@
 CMOWPointLight::CMOWPointLight(const char* name):
 	CMOWLight(name)
 {
-    HasPosition(true);
+    CMOWLight::HasPosition(true);
     m_type = SHADER_LIGHT_TYPE_POINT;
 }
 //---------------------------------------------
@@ -44,7 +44,7 @@ void CMOWPointLight::SetupModelAndPhysics(
     const CMOWPhysics& physics
     )
 {
-    SphereConstruct(1.0f,0,0,physics,false,100,0.0f,false);
+    SphereConstruct(1.0f,0,0,physics,false,10,0.0f,false);
     //PhysicalBody()->enableDeactivation(false);
 }
 //------------------------------------------------------

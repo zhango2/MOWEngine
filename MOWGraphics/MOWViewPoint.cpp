@@ -36,10 +36,10 @@ void CMOWViewPoint::UpdateViewPoint()
 
         // Translate the rotated camera position to the location of the viewer.
 
-        lookAt = XMLoadFloat3(&GeometryObject()->Position()) + lookAt;
+        lookAt = GeometryObject()->Position() + lookAt;
 
         // Create the view matrix from the three updated vectors.
-        XMStoreFloat4x4(&MutableViewMatrix(),XMMatrixLookAtLH(XMLoadFloat3(&GeometryObject()->Position()), lookAt, up));
+        XMStoreFloat4x4(&MutableViewMatrix(),XMMatrixLookAtLH(GeometryObject()->Position(), lookAt, up));
 
         // Create the projection matrix for the view point.
         XMStoreFloat4x4(&MutableProjectionMatrix(),XMMatrixPerspectiveFovLH(m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane));
@@ -90,7 +90,7 @@ void CMOWViewPoint::LookAt(
 //---------------------------------------------
 DirectX::XMVECTOR CMOWViewPoint::LookAt()
 {
-    return XMLoadFloat3(&GeometryObject()->Position()) + m_lookAt;
+    return GeometryObject()->Position() + m_lookAt;
 }
 
 //---------------------------------------------

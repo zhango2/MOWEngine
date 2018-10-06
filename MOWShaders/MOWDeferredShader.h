@@ -38,7 +38,7 @@ protected:
             DirectX::XMMATRIX& lightViewMatrix,
             DirectX::XMMATRIX& lightProjectionMatrix,
             LightBufferDefinition& lightDef,
-            DirectX::XMFLOAT3 cameraPos,
+            const DirectX::XMVECTOR& cameraPosition,
             int screenWidth,
             int screenHeight
             );

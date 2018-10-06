@@ -71,7 +71,7 @@ void CMOWTextureShader::CreateSamplerStates(
     samplerStates.push_back(state);
 }
 //---------------------------------------
-void CMOWTextureShader::ApplyFXResources(std::vector<ID3D11ShaderResourceView*>* resources)
+void CMOWTextureShader::ApplyFXResources(const std::vector<ID3D11ShaderResourceView*>* resources)
 {
     if( m_fx )
     {

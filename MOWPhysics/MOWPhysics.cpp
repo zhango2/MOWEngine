@@ -97,10 +97,12 @@ IMOWPhysicalEntity* CMOWPhysics::CreatePhysicalSphere(
 IMOWPhysicalEntity* CMOWPhysics::CreatePhysicalEntityFromModel(
     const CMOWModel* model,
     bool fixed,
-    bool collidable
+    bool collidable,
+    const CMOWTransform& rotationQuaternion
     ) const
 {
-    return m_world->ConstructPhysicalEntityFromModel(model, fixed, collidable);
+
+    return m_world->ConstructPhysicalEntityFromModel(model, fixed, collidable, rotationQuaternion);
 }
 //------------------------------------------------------
 IMOWPhysicalEntity* CMOWPhysics::LoadEntity(

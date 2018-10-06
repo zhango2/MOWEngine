@@ -614,6 +614,13 @@ void CMOWRenderer::RenderScenes(
                       m_screenHeight
                      );
 
+        scene->RenderBoundingVolumes(
+            m_immediateContext,
+            m_projectionMatrix,
+            m_screenWidth,
+            m_screenHeight
+            );
+
         itScene++;
     }
    
