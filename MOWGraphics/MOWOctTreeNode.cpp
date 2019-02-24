@@ -10,8 +10,6 @@ static std::vector<DirectX::XMFLOAT3>  s_boundsOffsets = { {-0.5f,-0.5f,-0.5f},
                                                            {-0.5f, 0.5f, 0.5f},
                                                            { 0.5f, 0.5f, 0.5f}
                                                           };
-
-
 using namespace DirectX;
 
 //---------------------------------------------
@@ -37,7 +35,7 @@ void CMOWOctTreeNode::Initialize(
     m_boundingBox->Position(bounds.m_center.x, bounds.m_center.y, bounds.m_center.z);
     m_boundingBox->Update();
     AddModels(fixedModels);
-    if (Models().size() > 4)
+    if (Models().size() >= 4)
     {
 
         CMOWBounds newBounds;
@@ -54,6 +52,7 @@ void CMOWOctTreeNode::Initialize(
             newBounds.m_center.z = bounds.m_center.z + zOffset;
             CMOWOctTreeNode* child = new CMOWOctTreeNode();
             child->Initialize(newBounds, fixedModels, device);
+
             if (child->Models().size())
             {
                 m_children.push_back(child);
@@ -65,7 +64,7 @@ void CMOWOctTreeNode::Initialize(
         }
 
     }
-    RemoveNodeModelsFromCollection(fixedModels);
+    //RemoveNodeModelsFromCollection(fixedModels);
 }
 //---------------------------------------------
 const CMOWOctTreeNode::model_collection& CMOWOctTreeNode::Models() const

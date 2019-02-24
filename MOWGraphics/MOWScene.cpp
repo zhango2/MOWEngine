@@ -63,7 +63,6 @@ void CMOWScene::AddModel(
 bool CMOWScene::Render( 
     ID3D11DeviceContext* context, 
     CMOWShader* shader, 
-    XMFLOAT4X4& projectionMatrix,
     std::set<CMOWLight*>& affectingLights,
     int screenWidth,
     int screenHeight
@@ -76,7 +75,7 @@ bool CMOWScene::Render(
     }
 
     ActiveCamera()->UpdateViewPoint();
-    m_frustum.Update(SCREEN_DEPTH,ActiveCamera()->MutableProjectionMatrix(),ActiveCamera()->MutableViewMatrix());
+    m_frustum.Update(ActiveCamera()->MutableProjectionMatrix(),ActiveCamera()->MutableViewMatrix());
 
     CMOWShader::LightBufferDefinition lightBuff;
     XMFLOAT4X4 lightViewMatrix;
@@ -86,7 +85,6 @@ bool CMOWScene::Render(
     RenderModelsFromNodesInFrustum(m_octTreeRoot,
                                    context,
                                    shader,
-                                   projectionMatrix,
                                    lightBuff,
                                    lightViewMatrix,
                                    lightProjMatrix,
@@ -122,7 +120,7 @@ bool CMOWScene::Render(
             model->Render(context,
                             shader,
                             ActiveCamera()->GetViewMatrix(),
-                            projectionMatrix,
+                            ActiveCamera()->GetProjectionMatrix(),
                             lightViewMatrix,
                             lightProjMatrix,
                             ActiveCamera()->Position(),
@@ -474,7 +472,6 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
     CMOWOctTreeNode* node,
     ID3D11DeviceContext* context,
     CMOWShader* shader,
-    DirectX::XMFLOAT4X4& projectionMatrix,
     CMOWShader::LightBufferDefinition& lightBuff,
     XMFLOAT4X4& lightViewMatrix,
     XMFLOAT4X4& lightProjMatrix,
@@ -495,6 +492,7 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
         {
             if( node->Children().size() == 0 )
             {
+                
                 auto itModel = node->Models().begin();
                 while( itModel != node->Models().end() )
                 {
@@ -503,10 +501,11 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
                     model->Update();
                     if( IsModelInFrustum(model) )
                     {
+                        
                         model->Render(context,
                             shader,
                             ActiveCamera()->GetViewMatrix(),
-                            projectionMatrix,
+                            ActiveCamera()->GetProjectionMatrix(),
                             lightViewMatrix,
                             lightProjMatrix,
                             ActiveCamera()->Position(),
@@ -521,18 +520,22 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
                             m_renderedModels.insert(model);
                         }
                     }
+                    else
+                    {
+                        int a=0;
+                        a++;
+                    }
                     itModel++;
                 }
 
             }
             else
-            {
+            {   
                 for( size_t i=0; i<node->Children().size(); i++ )
                 {
                     RenderModelsFromNodesInFrustum(node->Children()[i],
                         context,
                         shader,
-                        projectionMatrix,
                         lightBuff,
                         lightViewMatrix,
                         lightProjMatrix,
@@ -541,28 +544,44 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
                 }
             }
         }
+        else
+        {
+            if( node->Models().size() )
+            {
+                
+                CMOWModel* model = (*node->Models().begin());
+                if( model )
+                {
+                    int a=0;
+                    a++;
+                }
+            }
+        }
+    }
+    else
+    {
+        int a=0;
+        a++;
     }
     
 }
 //---------------------------------------
 void CMOWScene::RenderBoundingVolumes(
     ID3D11DeviceContext* context,
-    DirectX::XMFLOAT4X4& projectionMatrix,
     int screenWidth,
     int screenHeight
     )
 {
     if( m_octTreeRoot )
     {
-        RenderBoundingVolumes(m_octTreeRoot->Models(),context,projectionMatrix,screenWidth,screenHeight);
+        RenderBoundingVolumes(m_octTreeRoot->Models(),context,screenWidth,screenHeight);
     }
-    RenderBoundingVolumes(m_models,context,projectionMatrix,screenWidth,screenHeight);
+    RenderBoundingVolumes(m_models,context,screenWidth,screenHeight);
 }
 //---------------------------------------
 void CMOWScene::RenderBoundingVolumes(
     const model_collection& models,
     ID3D11DeviceContext* context,
-    DirectX::XMFLOAT4X4& projectionMatrix,
     int screenWidth,
     int screenHeight
     )
@@ -577,7 +596,7 @@ void CMOWScene::RenderBoundingVolumes(
 
         model->BoundingBox()->Render(context,
                                         ActiveCamera()->GetViewMatrix(),
-                                        projectionMatrix,
+                                        ActiveCamera()->GetProjectionMatrix(),
                                         ActiveCamera()->Position(),
                                         screenWidth,
                                         screenHeight
@@ -588,7 +607,6 @@ void CMOWScene::RenderBoundingVolumes(
 //---------------------------------------
 void CMOWScene::RenderOctTree(
     ID3D11DeviceContext* context, 
-    DirectX::XMFLOAT4X4& projectionMatrix, 
     int screenWidth, 
     int screenHeight
     )
@@ -596,7 +614,7 @@ void CMOWScene::RenderOctTree(
     ActiveCamera()->UpdateViewPoint();
     m_octTreeRoot->Render(context,
                           ActiveCamera()->GetViewMatrix(),
-                          projectionMatrix,
+                          ActiveCamera()->GetProjectionMatrix(),
                           ActiveCamera()->Position(),
                           screenWidth,
                           screenHeight

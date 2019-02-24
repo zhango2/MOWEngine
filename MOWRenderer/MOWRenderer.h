@@ -150,7 +150,7 @@ public:
         AcquireKeyboard( 
             bool acquire 
             );
-    
+
 private:
 
     struct LightRenderCBArg
@@ -222,7 +222,6 @@ private:
     void                            
         RenderOctTrees(
             );
-
     
 
     ID3D11Device*               
@@ -239,9 +238,6 @@ private:
 
     scene_collection            
         m_scenes;
-
-    DirectX::XMFLOAT4X4         
-        m_projectionMatrix;
 
 	DirectX::XMFLOAT4X4         
         m_worldMatrix;

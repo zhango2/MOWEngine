@@ -226,13 +226,6 @@ bool CMOWRenderer::Initialize(
                                 vp.TopLeftY = 0;
                                 m_immediateContext->RSSetViewports( 1, &vp );
 
-                                // Setup the projection matrix.
-	                            float fieldOfView = (float)XM_PI / 4.0f;
-	                            float screenAspect = (float)m_screenWidth / (float)m_screenHeight;
-
-	                            // Create the projection matrix for 3D rendering.
-                                XMStoreFloat4x4(&m_projectionMatrix,XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, SCREEN_NEAR, SCREEN_DEPTH));
-
                                 // Initialize the world matrix to the identity matrix.
                                 XMStoreFloat4x4(&m_worldMatrix,XMMatrixIdentity());
 
@@ -608,15 +601,19 @@ void CMOWRenderer::RenderScenes(
         scene->GatherStatistics(m_gatherStatistics);
         scene->Render(m_immediateContext,
                       shader,
-                      m_projectionMatrix,
                       affectingLights,
                       m_screenWidth,
                       m_screenHeight
                      );
 
-        scene->RenderBoundingVolumes(
+        /*scene->RenderBoundingVolumes(
             m_immediateContext,
-            m_projectionMatrix,
+            m_screenWidth,
+            m_screenHeight
+            );*/
+
+        scene->RenderOctTree(
+            m_immediateContext,
             m_screenWidth,
             m_screenHeight
             );
@@ -712,7 +709,7 @@ void CMOWRenderer::RenderLight(
         light->RenderableObject()->Render(pThis->m_immediateContext,
             pThis->m_lightShader,
             scene->ActiveCamera()->GetViewMatrix(),
-            pThis->m_projectionMatrix,
+            scene->ActiveCamera()->GetProjectionMatrix(),
             light->GetViewMatrix(),
             light->GetProjectionMatrix(),
             scene->ActiveCamera()->Position(),
@@ -738,7 +735,7 @@ void CMOWRenderer::RenderLight(
         light->RenderableObject()->Render(pThis->m_immediateContext,
                                           pThis->m_lightShader,
                                           scene->ActiveCamera()->GetViewMatrix(),
-                                          pThis->m_projectionMatrix,
+                                          scene->ActiveCamera()->GetProjectionMatrix(),
                                           light->GetViewMatrix(),
                                           light->GetProjectionMatrix(),
                                           scene->ActiveCamera()->Position(),
@@ -778,7 +775,7 @@ void CMOWRenderer::RenderShadow(
     model->Render(pThis->m_immediateContext,
                   pThis->m_shadowShader,
                   scene->ActiveCamera()->GetViewMatrix(),
-                  pThis->m_projectionMatrix,
+                  scene->ActiveCamera()->GetProjectionMatrix(),
                   light->GetViewMatrix(),
                   light->GetProjectionMatrix(),
                   scene->ActiveCamera()->Position(),
@@ -833,7 +830,7 @@ void CMOWRenderer::RenderBoundingVolumes()
     while( itScene != m_scenes.end() )
     {
         CMOWScene* scene = *itScene;
-        scene->RenderBoundingVolumes(m_immediateContext,m_projectionMatrix,m_screenWidth,m_screenHeight);
+        scene->RenderBoundingVolumes(m_immediateContext,m_screenWidth,m_screenHeight);
         itScene++;
     }
 }
@@ -844,7 +841,7 @@ void CMOWRenderer::RenderOctTrees()
     while( itScene != m_scenes.end() )
     {
         CMOWScene* scene = *itScene;
-        scene->RenderOctTree(m_immediateContext,m_projectionMatrix,m_screenWidth,m_screenHeight);
+        scene->RenderOctTree(m_immediateContext,m_screenWidth,m_screenHeight);
         itScene++;
     }
 }

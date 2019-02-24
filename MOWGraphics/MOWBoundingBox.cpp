@@ -57,10 +57,20 @@ bool CMOWBoundingBox::IsInside(
     float myMinZ = XMVectorGetZ(Position()) - (Depth() / 2.0f);
     float myMaxZ = XMVectorGetZ(Position()) + (Depth() / 2.0f);
 
-    bool retVal = XMVectorGetX(box.Position()) >= myMinX && XMVectorGetX(box.Position()) <= myMaxX;
+    float boxMinX = XMVectorGetX(box.Position()) - (box.Width() / 2.0f);
+    float boxMaxX = XMVectorGetX(box.Position()) + (box.Width() / 2.0f);
 
-    retVal = retVal ? XMVectorGetY(box.Position()) >= myMinY && XMVectorGetY(box.Position()) <= myMaxY : retVal;
-    retVal = retVal ? XMVectorGetZ(box.Position()) >= myMinZ && XMVectorGetZ(box.Position()) <= myMaxZ : retVal;
+    float boxMinY = XMVectorGetY(box.Position()) - (box.Height() / 2.0f);
+    float boxMaxY = XMVectorGetY(box.Position()) + (box.Height() / 2.0f);
+
+    float boxMinZ = XMVectorGetZ(box.Position()) - (box.Depth() / 2.0f);
+    float boxMaxZ = XMVectorGetZ(box.Position()) + (box.Depth() / 2.0f);
+
+
+    bool retVal = boxMinX >= myMinX && boxMaxX <= myMaxX;
+
+    retVal = retVal ? boxMinY >= myMinY && boxMaxY <= myMaxY : retVal;
+    retVal = retVal ? boxMinZ >= myMinZ && boxMaxZ <= myMaxZ : retVal;
 
     return retVal;
 }

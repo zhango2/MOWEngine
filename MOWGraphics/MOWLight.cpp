@@ -18,6 +18,12 @@ using namespace DirectX;
 
 CMOWLight::CMOWLight(
     const char* name
+    ):
+    BaseClass(
+        ((float)XM_PI / 2.0f),
+        1.0f,
+        1.0f,
+        100.0f
     )
 {
     memset(&m_ambientColor,0,sizeof(XMFLOAT4));

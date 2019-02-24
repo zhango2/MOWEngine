@@ -15,7 +15,6 @@ public:
 
     void            
         Update(
-            float screenDepth,
             DirectX::XMFLOAT4X4& projectionMatrix, 
             DirectX::XMFLOAT4X4& viewMatrix
             );

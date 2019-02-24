@@ -31,8 +31,9 @@ CMOWModel::CMOWModel( CMOWModel& orig )
 {
     m_physicalBody = nullptr;
     m_boundingBox = nullptr;
-    m_boundingShape = PbMOWGraphics::PMBS_NONE;
+    m_boundingShape = orig.BoundingShape();
     m_textures = orig.m_textures;
+    Name(orig.Name().c_str());
     
     CopyParts(orig.m_parts);
 }
@@ -357,9 +358,29 @@ const XMVECTOR& CMOWModel::Rotation() const
     if( PhysicalBody() )
     {
         CMOWVector rot = PhysicalBody()->Rotation();
+
         XMVECTOR physicalQuat = XMVectorSet(rot.X(), rot.Y(), rot.Z(), rot.W());
 
-        m_totalRotation = XMQuaternionMultiply(physicalQuat, m_rotation);
+        XMVECTOR nonPhysicalRotation = m_rotation;
+
+        /*if( XMVectorGetX(m_rotation) == 0.0f && 
+            XMVectorGetY(m_rotation) == 0.0f && 
+            XMVectorGetZ(m_rotation) == 0.0f)
+        {
+            nonPhysicalRotation = XMVectorSet(0.0f,0.0f,0.0f,1.0f);
+        }
+        
+        if( XMVectorGetX(physicalQuat) != 0.0f && 
+            XMVectorGetY(physicalQuat) != 0.0f && 
+            XMVectorGetZ(physicalQuat) != 0.0f)
+        {
+            m_totalRotation = XMQuaternionMultiply(physicalQuat, nonPhysicalRotation);
+        }*/
+
+        m_totalRotation = XMQuaternionMultiply(physicalQuat, nonPhysicalRotation);
+
+        
+
     }
     if( m_boundingBox )
     {
@@ -995,7 +1016,8 @@ void CMOWModel::CreateBoundingVolumes()
         
 
         m_boundingShape = sphereVolume < boxVolume ? PbMOWGraphics::PbMOWBoundingShape::PMBS_SPHERE : PbMOWGraphics::PbMOWBoundingShape::PMBS_BOX;
-        
+        m_boundingShape = PbMOWGraphics::PbMOWBoundingShape::PMBS_SPHERE;
+
         m_boundingSphere.Initialize(xCenter,
                                     yCenter,
                                     zCenter,

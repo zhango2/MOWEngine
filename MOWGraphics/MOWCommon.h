@@ -10,7 +10,7 @@
     #define SCREEN_DEPTH 500.0f
 #endif
 #ifndef SCREEN_NEAR
-    #define SCREEN_NEAR 1.0f
+    #define SCREEN_NEAR 0.1f
 #endif
 
 #ifndef SHADOWMAP_DEPTH

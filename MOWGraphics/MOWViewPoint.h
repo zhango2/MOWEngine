@@ -15,6 +15,10 @@ class CMOWViewPoint
 
 public:
     CMOWViewPoint(
+        float fieldOfView,
+        float aspectRatio,
+        float nearPlane,
+        float farPlane
         );
 
     virtual             

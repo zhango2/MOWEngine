@@ -3,13 +3,22 @@
 #include "MOWRenderableObject.h"
 using namespace DirectX;
 //--------------------------------------------
-CMOWViewPoint::CMOWViewPoint()
+CMOWViewPoint::CMOWViewPoint(
+    float fieldOfView,
+    float aspectRatio,
+    float nearPlane,
+    float farPlane
+    )
 {
-    m_aspectRatio = 1.0f;
-    m_farPlane = 100.0f;
-    m_fieldOfView = ((float)XM_PI / 2.0f);
-    m_nearPlane = 0.1f;
+    m_aspectRatio = aspectRatio;
+    m_farPlane = farPlane;
+    m_nearPlane = nearPlane;
+    m_fieldOfView = fieldOfView;
+
     LookAt(0.0f,0.0f,1.0f);
+
+    // Create the projection matrix for the view point.
+    XMStoreFloat4x4(&MutableProjectionMatrix(),XMMatrixPerspectiveFovLH(m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane));
 }
 //---------------------------------------------
 CMOWViewPoint::~CMOWViewPoint()
@@ -25,10 +34,9 @@ void CMOWViewPoint::UpdateViewPoint()
         MutableGeometryObject()->Update();
         XMVECTOR up, lookAt;
 
-        lookAt = m_lookAt;
-
         // Setup the vector that points upwards.
         up = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
+        lookAt = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
 
         // Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
         lookAt = XMVector3TransformCoord(lookAt, XMLoadFloat4x4(&GeometryObject()->RotationMatrix()));
@@ -40,9 +48,6 @@ void CMOWViewPoint::UpdateViewPoint()
 
         // Create the view matrix from the three updated vectors.
         XMStoreFloat4x4(&MutableViewMatrix(),XMMatrixLookAtLH(GeometryObject()->Position(), lookAt, up));
-
-        // Create the projection matrix for the view point.
-        XMStoreFloat4x4(&MutableProjectionMatrix(),XMMatrixPerspectiveFovLH(m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane));
     }
     
 }

@@ -17,6 +17,8 @@ class CMOWLight :
 {
 public:
 
+    using BaseClass = CMOWViewPoint;
+
     CMOWLight(
         const char* name
         );

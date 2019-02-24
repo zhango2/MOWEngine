@@ -2,7 +2,13 @@
 
 using namespace DirectX;
 
-CMOWCamera::CMOWCamera()
+CMOWCamera::CMOWCamera(
+    float fieldOfView,
+    float aspectRatio,
+    float nearPlane,
+    float farPlane
+    ):
+    BaseClass(fieldOfView, aspectRatio, nearPlane, farPlane)
 {
     m_oldMouseX = 0;
     m_oldMouseY = 0;
@@ -25,10 +31,19 @@ CMOWRenderableObject* CMOWCamera::RenderableObject()
 }
 //---------------------------------------------
 CMOWCamera* CMOWCamera::Create(
-    const CMOWPhysics& physics
+    const CMOWPhysics& physics,
+    float fieldOfView,
+    float aspectRatio,
+    float nearPlane,
+    float farPlane
     )
 {
-    CMOWCamera* cam = new CMOWCamera();
+    CMOWCamera* cam = new CMOWCamera(
+        fieldOfView,
+        aspectRatio,
+        nearPlane,
+        farPlane
+    );
     cam->Init(physics);
 
     return cam;
@@ -105,6 +120,17 @@ void CMOWCamera::KeyboardUpdated(
             LinearVelocity(-1.0f*zVelPart*m_velFactor,0.0f,xVelPart*m_velFactor);
         }
     }
+    else if( (pressedKeys[DIK_Q] & 0x80) || (pressedKeys[DIK_Z] & 0x80) )
+    {
+        if( pressedKeys[DIK_Q] & 0x80 )
+        {
+            LinearVelocity(0.0f,5.0f,0.0f);
+        }
+        else
+        {
+            LinearVelocity(0.0f,-5.0f,0.0f);
+        }
+    }
     else
     {
         LinearVelocity(0.0f,0.0f,0.0f);
@@ -134,8 +160,9 @@ CMOWCamera* CMOWCamera::FromPb(
     const CMOWPhysics& physics
     )
 {
-    CMOWCamera* retVal = new CMOWCamera;
+    return nullptr;
+    /*CMOWCamera* retVal = new CMOWCamera;
     CMOWModel* base = reinterpret_cast<CMOWModel*>(retVal);
     base->FromPb(fromPb,physics);
-    return retVal;
+    return retVal;*/
 }

@@ -11,9 +11,13 @@ class CMOWCamera :
     public CMOWSphere,
     public CMOWInput::IEvents
 {
-    typedef CMOWViewPoint BaseClass;
+    using BaseClass = CMOWViewPoint;
 public:
     CMOWCamera(
+        float fieldOfView,
+        float aspectRatio,
+        float nearPlane,
+        float farPlane
         );
 
     virtual 
@@ -22,7 +26,11 @@ public:
     
     static CMOWCamera*       
         Create(
-            const CMOWPhysics& physics
+            const CMOWPhysics& physics,
+            float fieldOfView,
+            float aspectRatio,
+            float nearPlane,
+            float farPlane
             );
 
 

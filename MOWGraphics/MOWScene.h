@@ -88,7 +88,6 @@ public:
         Render(
             ID3D11DeviceContext* context,
             CMOWShader* shader,
-            DirectX::XMFLOAT4X4& projectionMatrix,
             std::set<CMOWLight*>& affectingLights,
             int screenWidth,
             int screenHeight
@@ -110,7 +109,6 @@ public:
     void                        
         RenderBoundingVolumes(
             ID3D11DeviceContext* context,
-            DirectX::XMFLOAT4X4& projectionMatrix,
             int screenWidth,
             int screenHeight
             );
@@ -118,7 +116,6 @@ public:
     void                        
         RenderOctTree(
             ID3D11DeviceContext* context,
-            DirectX::XMFLOAT4X4& projectionMatrix,
             int screenWidth,
             int screenHeight
             );
@@ -206,7 +203,6 @@ private:
             CMOWOctTreeNode* node,
             ID3D11DeviceContext* context,
             CMOWShader* shader,
-            DirectX::XMFLOAT4X4& projectionMatrix,
             CMOWShader::LightBufferDefinition& lightBuff,
             DirectX::XMFLOAT4X4& lightViewMatrix,
             DirectX::XMFLOAT4X4& lightProjMatrix,
@@ -218,7 +214,6 @@ private:
         RenderBoundingVolumes(
             const model_collection& models,
             ID3D11DeviceContext* context,
-            DirectX::XMFLOAT4X4& projectionMatrix,
             int screenWidth,
             int screenHeight
             );
