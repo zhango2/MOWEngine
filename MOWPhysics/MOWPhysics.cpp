@@ -22,7 +22,7 @@ void CMOWPhysics::Initialize()
 }
 //---------------------------------------------
 void CMOWPhysics::AddModel( 
-    CMOWModel* model,
+    CMOWModelPtr model,
     bool fixedObject,
     bool character
     )
@@ -61,7 +61,7 @@ void CMOWPhysics::Gravity(
 }
 //---------------------------------------------
 void CMOWPhysics::RemoveModel( 
-    CMOWModel* model 
+    CMOWModelPtr model 
     )
 {
     m_world->RemoveEntity(model->PhysicalBody());
@@ -95,7 +95,7 @@ IMOWPhysicalEntity* CMOWPhysics::CreatePhysicalSphere(
 }
 //------------------------------------------------------
 IMOWPhysicalEntity* CMOWPhysics::CreatePhysicalEntityFromModel(
-    const CMOWModel* model,
+    CMOWModelPtrC model,
     bool fixed,
     bool collidable,
     const CMOWTransform& rotationQuaternion

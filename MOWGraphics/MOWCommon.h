@@ -5,6 +5,7 @@
 #include <memory.h>
 #include "D3D11.h"
 #include "DirectXMath.h"
+#include "MOWCommon/MOWSharedPtr.h"
 
 #ifndef SCREEN_DEPTH
     #define SCREEN_DEPTH 500.0f

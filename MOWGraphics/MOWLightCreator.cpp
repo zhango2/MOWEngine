@@ -6,17 +6,17 @@
 #include <string>
 
 //------------------------------------------------------
-CMOWLight* CMOWLightCreator::CreateLight(
+CMOWLightPtr CMOWLightCreator::CreateLight(
     const PbMOWGraphics::PbMOWLight& fromPb,
     const CMOWPhysics& physics
     )
 {
-    CMOWLight* light = 0;
+    CMOWLightPtr light = 0;
 
     switch(fromPb.type())
     {
         
-        case PbMOWGraphics::PbMOWLight_Type_POINT: { light = new CMOWPointLight(fromPb.name().c_str()); break; }
+        case PbMOWGraphics::PbMOWLight_Type_POINT: { light = CMOWLightPtr(new CMOWPointLight(fromPb.name().c_str())); break; }
         /*case PbMOWGraphics::PbMOWLight_Type_SPOT: { light->m_type = SHADER_LIGHT_TYPE_SPOT; break; }
         case PbMOWGraphics::PbMOWLight_Type_DIRECTIONAL: { light->m_type = SHADER_LIGHT_TYPE_DIRECTIONAL; break; }*/
         default:{ break; }

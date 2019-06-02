@@ -17,7 +17,7 @@ CMOWBox::~CMOWBox()
 void CMOWBox::PopulateVerticesAndIndices()
 {
 
-    CMOWModelPart* part = ModelPart("Box");
+    CMOWModelPartPtr part = ModelPart("Box");
     
     if( part && !part->Vertices().size() )
     {
@@ -266,7 +266,7 @@ void CMOWBox::BoxConstruct(
     bool fixed
     )
 {
-    CMOWModelPart* part = CreateAndAddModelPart("Box",D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    CMOWModelPartPtr part = CreateAndAddModelPart("Box",D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     Width(width);
     Height(height);
     Depth(depth);

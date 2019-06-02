@@ -104,12 +104,12 @@ CMOWRenderableObject* CMOWViewPoint::RenderableObject()
     return 0;
 }
 //---------------------------------------------
-const CMOWModel* CMOWViewPoint::Model() const
+CMOWModelPtrC CMOWViewPoint::Model() const
 {
     return 0;
 }
 //------------------------------------------------------
-CMOWModel* CMOWViewPoint::MutableModel()
+CMOWModelPtr CMOWViewPoint::MutableModel()
 {
     return 0;
 }

@@ -8,6 +8,8 @@
 class CMOWModel;
 class CMOWBoundingBox;
 
+DECLARE_SHARED_PTR(CMOWModel)
+
 class CMOWBounds
 {
 public:
@@ -26,7 +28,7 @@ public:
 
     typedef std::vector<CMOWOctTreeNode*> children_collection;
     typedef std::vector<CMOWBoundingBox*> bounding_boxes;
-    typedef std::set<CMOWModel*> model_collection;
+    typedef std::set<CMOWModelPtr> model_collection;
 
 
     CMOWOctTreeNode();

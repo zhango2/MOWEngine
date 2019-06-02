@@ -13,11 +13,7 @@
 
 
 class CMOWFrustum;
-class CMOWModel;
-class CMOWCamera;
-class CMOWLight;
 class CMOWPhysics;
-
 
 struct ID3D11DeviceContext;
 struct ID3D11Device;
@@ -25,19 +21,23 @@ struct DirectX::XMMATRIX;
 struct DirectX::XMFLOAT3;
 class CMOWBoundingBox;
 
+DECLARE_SHARED_PTR(CMOWModel)
+DECLARE_SHARED_PTR(CMOWCamera)
+DECLARE_SHARED_PTR(CMOWLight)
+
 class CMOWScene :
     public CMOWAlignedObject
 {
 
-    typedef std::vector<CMOWCamera*> camera_collection;
-    typedef std::vector<CMOWLight*>  light_collection;
-    typedef std::set<CMOWModel*> model_collection;
+    typedef std::vector<CMOWCameraPtr> camera_collection;
+    typedef std::vector<CMOWLightPtr>  light_collection;
+    typedef std::set<CMOWModelPtr> model_collection;
     
 public:
 
-    typedef void                (*RenderLightCB)(CMOWLight* light, CMOWScene* scene, void* arg);
+    typedef void                (*RenderLightCB)(CMOWLightPtr light, CMOWScene* scene, void* arg);
 
-    typedef void                (*RenderShadowCB)(CMOWLight* light,CMOWModel* model, CMOWScene* scene, void* arg);
+    typedef void                (*RenderShadowCB)(CMOWLightPtr light,CMOWModelPtr model, CMOWScene* scene, void* arg);
 
     CMOWScene(
         ID3D11Device* device
@@ -48,38 +48,38 @@ public:
 
     void                        
         AddModel(
-            CMOWModel* model
+            CMOWModelPtr model
             );
 
     void                        
         RemoveModel(
-            CMOWModel* model
+            CMOWModelPtr model
             );
 
     void                        
         AddLight(
-            CMOWLight* light,
+            CMOWLightPtr light,
             bool serializeable = true
             );
 
     void                        
         RemoveLight(
-            CMOWLight* light
+            CMOWLightPtr light
             );
                                     
 
     void                        
         AddCamera(
-            CMOWCamera* camera,
+            CMOWCameraPtr camera,
             bool serializeable = true
             );
 
     void                        
         ActiveCamera(
-            CMOWCamera* camera
+            CMOWCameraPtr camera
             );
 
-    CMOWCamera*                  
+    CMOWCameraPtr                  
         ActiveCamera(
             ) const;
     
@@ -88,7 +88,7 @@ public:
         Render(
             ID3D11DeviceContext* context,
             CMOWShader* shader,
-            std::set<CMOWLight*>& affectingLights,
+            std::set<CMOWLightPtr>& affectingLights,
             int screenWidth,
             int screenHeight
             );
@@ -102,7 +102,7 @@ public:
     void                        
         RenderShadows(
             RenderShadowCB shadowCB,
-            CMOWLight* light,
+            CMOWLightPtr light,
             void* shadowArg
             );
 
@@ -122,7 +122,7 @@ public:
 
     bool                        
         IsModelInFrustum(
-            const CMOWModel* model
+            const CMOWModelPtr model
             ) const;
     
     void                        
@@ -156,15 +156,15 @@ public:
             );
 
 
-    std::set<CMOWModel*>
+    std::set<CMOWModelPtr>
         FixedModels(
             );
 
-    const std::set<CMOWModel*>&     
+    const std::set<CMOWModelPtr>&     
         DynamicModels(
             );
 
-    const std::vector<CMOWLight*>&
+    const std::vector<CMOWLightPtr>&
         Lights(
             );
 
@@ -237,7 +237,7 @@ private:
 
     void
         ExtractModelsFromOctTreeNode( 
-            std::set<CMOWModel*>& models,
+            std::set<CMOWModelPtr>& models,
             CMOWOctTreeNode* node 
             );
 
@@ -263,7 +263,7 @@ private:
     ID3D11Device*               
         m_d3dDevice;
 
-    CMOWCamera*                  
+    CMOWCameraPtr                  
         m_activeCamera;
 
     CMOWFrustum                  

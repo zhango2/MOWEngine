@@ -105,7 +105,7 @@ bool CMOWModel::Render(
 
     for( auto itParts : m_parts )
     {
-        CMOWMaterial* mat = CMOWResourceManager::Instance()->Material(itParts.second->MaterialName());
+        CMOWMaterialPtr mat = CMOWResourceManager::Instance()->Material(itParts.second->MaterialName());
 
         if( mat )
         {
@@ -155,7 +155,7 @@ bool CMOWModel::Render(
     bool retVal = true;
     for( auto itParts : m_parts )
     {
-        CMOWMaterial* mat = CMOWResourceManager::Instance()->Material(itParts.second->MaterialName());
+        CMOWMaterialPtr mat = CMOWResourceManager::Instance()->Material(itParts.second->MaterialName());
         ShaderMaterial shaderMat;
 
         if( mat )
@@ -185,13 +185,13 @@ bool CMOWModel::Render(
 }
 
 //---------------------------------------------
-CMOWModel* CMOWModel::PopulateModelFromObjFile(
+CMOWModelPtr CMOWModel::PopulateModelFromObjFile(
     const char* fileName
     )
 {
     
     bool retVal = false;
-    CMOWModel* model = 0;
+    CMOWModelPtr model = 0;
     
     std::map<std::string,CObjParser::ObjMaterial> materials;
     std::vector<CObjParser::ObjObject> objects = CObjParser::Parse(fileName,materials);
@@ -199,20 +199,21 @@ CMOWModel* CMOWModel::PopulateModelFromObjFile(
 
     if(objects.size())
     {
-        model = new CMOWModel;
+        model = CMOWModelPtr(new CMOWModel);
         auto itMat = materials.begin();
         while( itMat != materials.end() )
         {
             
             CObjParser::ObjMaterial objMat = (*itMat).second;
-            CMOWMaterial* mat = new CMOWMaterial(
+            CMOWMaterialPtr mat = CMOWMaterialPtr(new CMOWMaterial(
                 objMat.m_name.c_str(),
                 objMat.m_aTexture.c_str(),
                 XMFLOAT4(objMat.m_aR, objMat.m_aG, objMat.m_aB, 1.0f),
                 XMFLOAT4(objMat.m_dR, objMat.m_dG, objMat.m_dB, 1.0f),
                 XMFLOAT4(objMat.m_sR, objMat.m_sG, objMat.m_sB, 1.0f),
                 XMFLOAT4(objMat.m_eR, objMat.m_eG, objMat.m_eB, 1.0f),
-                objMat.m_specularPower > 0.0f ? 1000.0f / objMat.m_specularPower : 0.0f);
+                objMat.m_specularPower > 0.0f ? 1000.0f / objMat.m_specularPower : 0.0f))
+            ;
 
             CMOWResourceManager::Instance()->AddMaterial(mat);
             itMat++;
@@ -226,7 +227,7 @@ CMOWModel* CMOWModel::PopulateModelFromObjFile(
             long normalSubtract = normalIndexMax;
             long textSubtract = textIndexMax;
 
-            CMOWModelPart* part = model->CreateAndAddModelPart(obj.m_name.c_str(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            CMOWModelPartPtr part = model->CreateAndAddModelPart(obj.m_name.c_str(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
             part->MaterialName(obj.m_materialName.c_str());
 
@@ -404,20 +405,20 @@ void CMOWModel::AngularVelocity(
     
 }
 //---------------------------------------------
-CMOWModelPart* CMOWModel::CreateAndAddModelPart( 
+CMOWModelPartPtr CMOWModel::CreateAndAddModelPart( 
     const char* name,
     D3D11_PRIMITIVE_TOPOLOGY topology
     )
 {
-    CMOWModelPart* part = new CMOWModelPart(topology);
+    CMOWModelPartPtr part = CMOWModelPartPtr(new CMOWModelPart(topology));
     part->Name(name);
     AddModelPart(part);
     return part;
 }
 //---------------------------------------------
-CMOWModelPart* CMOWModel::ModelPart( const char* name ) const
+CMOWModelPartPtr CMOWModel::ModelPart( const char* name ) const
 {
-    CMOWModelPart* part = 0;
+    CMOWModelPartPtr part = 0;
     auto itFind = m_parts.find(name);
 
     if( itFind != m_parts.end() )
@@ -432,12 +433,7 @@ void CMOWModel::Clear()
 {
     parts_map::iterator itParts = m_parts.begin();
 
-    while( itParts != m_parts.end() )
-    {
-        CMOWModelPart* part = itParts->second;
-        delete part;
-        itParts = m_parts.erase(itParts);
-    }
+    m_parts.clear();
     if( m_physicalBody )
     {
         m_physicalBody->Clear();
@@ -501,7 +497,7 @@ void CMOWModel::SerializeSave(
     model.SerializeToOstream(&fOut);
 }
 //---------------------------------------------
-CMOWModel* CMOWModel::SerializeLoad( 
+CMOWModelPtr CMOWModel::SerializeLoad( 
     std::ifstream& fIn,
     const CMOWPhysics& physics,
     bool useAdjacencies
@@ -547,12 +543,12 @@ CMOWModel* CMOWModel::SerializeLoad(
     }*/
 }
 //------------------------------------------------------
-CMOWModel* CMOWModel::SerializeLoad(
+CMOWModelPtr CMOWModel::SerializeLoad(
     const char* fileName,
     const CMOWPhysics& physics
     )
 {
-    CMOWModel* model = 0;
+    CMOWModelPtr model = 0;
     std::ifstream fIn;
     fIn.open(fileName,std::ios_base::binary);
     model = SerializeLoad(fIn,physics),
@@ -640,7 +636,7 @@ void CMOWModel::CopyParts( parts_map& parts )
 
     while( itPart != parts.end() )
     {
-        CMOWModelPart* newPart = new CMOWModelPart(*itPart->second);
+        CMOWModelPartPtr newPart = CMOWModelPartPtr(new CMOWModelPart(*itPart->second));
         m_parts[itPart->first] = newPart;
 
         itPart++;
@@ -677,7 +673,7 @@ void CMOWModel::Scale(
 ID3D11Buffer* CMOWModel::VertexBufferFromPart( const char* partName ) const
 {
     ID3D11Buffer* retVal = 0;
-    CMOWModelPart* part = ModelPart(partName);
+    CMOWModelPartPtr part = ModelPart(partName);
 
     if( part )
     {
@@ -690,7 +686,7 @@ ID3D11Buffer* CMOWModel::VertexBufferFromPart( const char* partName ) const
 ID3D11Buffer* CMOWModel::IndexBufferFromPart( const char* partName ) const
 {
     ID3D11Buffer* retVal = 0;
-    CMOWModelPart* part = ModelPart(partName);
+    CMOWModelPartPtr part = ModelPart(partName);
 
     if( part )
     {
@@ -706,7 +702,7 @@ ID3D11Buffer* CMOWModel::SharedVertexBufferFromPart( const char* partName )
     //If so we can share its buffers
 
     ID3D11Buffer* retVal = 0;
-    CMOWModel* model = CMOWResourceManager::Instance()->GetModel(Name().c_str());
+    CMOWModelPtr model = CMOWResourceManager::Instance()->GetModel(Name().c_str());
 
     if( model )
     {
@@ -722,7 +718,7 @@ ID3D11Buffer* CMOWModel::SharedIndexBufferFromPart( const char* partName )
     //If so we can share its buffers
 
     ID3D11Buffer* retVal = 0;
-    CMOWModel* model = CMOWResourceManager::Instance()->GetModel(Name().c_str());
+    CMOWModelPtr model = CMOWResourceManager::Instance()->GetModel(Name().c_str());
 
     if( model )
     {
@@ -754,21 +750,21 @@ static long GetOppositeIndex(CMOWFace& face, CMOWEdge& e)
 
 
 //---------------------------------------------
-void CMOWModel::FindAdjacencies(CMOWModelPart* part)
+void CMOWModel::FindAdjacencies(CMOWModelPartPtr part)
 {
     std::map<XMFLOAT3,long, CMOWCompareXMFLOAT3> posMap;
     face_vector faces = part->Faces();
-    std::vector<CMOWFace*> adjecentFaces;
+    std::vector<CMOWFacePtr> adjecentFaces;
     std::map<CMOWEdge,CMOWNeighbors,CMOWCompareEdges> neighborsByEdge;
 
-    std::set<CMOWFace*> remainingFaces;
+    std::set<CMOWFacePtr> remainingFaces;
 
     for( size_t i = 0; i<faces.size(); i++ )
     {
         adjecentFaces.clear();
         remainingFaces.insert(faces[i]);
     }
-    for(CMOWFace* face : faces )
+    for(CMOWFacePtr face : faces )
     {
         
         FindAjacentFaces(face,remainingFaces,part,adjecentFaces);
@@ -833,17 +829,17 @@ void CMOWModel::FindAdjacencies(CMOWModelPart* part)
 }
 //------------------------------------------------------
 void CMOWModel::FindAjacentFaces(
-    CMOWFace* face,
-    std::set<CMOWFace*>& remainingFaces,
-    CMOWModelPart* part,
-    std::vector<CMOWFace*>& adjacentFaces
+    CMOWFacePtr face,
+    std::set<CMOWFacePtr>& remainingFaces,
+    CMOWModelPartPtr part,
+    std::vector<CMOWFacePtr>& adjacentFaces
     )
 {
     const face_vector& faces = part->Faces();
     std::vector<long>& finalIndexBuff = part->MutableIndicesWithAdjacencies();
     std::vector<long> foundIndecies;
     int foundCount = 0;
-    std::set<CMOWFace*>::iterator itFace = remainingFaces.begin();
+    std::set<CMOWFacePtr>::iterator itFace = remainingFaces.begin();
             
     long indexToInsert = 0;
     
@@ -867,7 +863,7 @@ void CMOWModel::FindAjacentFaces(
         itFace = remainingFaces.begin();
         for( size_t faceIndex = 0; faceIndex<faces.size(); faceIndex++ )
         {
-            CMOWFace* faceToCheck = faces[faceIndex];
+            CMOWFacePtr faceToCheck = faces[faceIndex];
             if( faceToCheck != face )
             {
                 
@@ -1066,12 +1062,12 @@ void CMOWModel::ToPb(
     
 }
 //------------------------------------------------------
-CMOWModel* CMOWModel::FromPb(
+CMOWModelPtr CMOWModel::FromPb(
     const PbMOWGraphics::PbMOWModel& fromPb,
     const CMOWPhysics& physics
     )
 {
-    CMOWModel* model = new CMOWModel;
+    CMOWModelPtr model = CMOWModelPtr(new CMOWModel);
     model->PropertiesFromPb(fromPb,physics);
     return model;
 }
@@ -1084,7 +1080,7 @@ void CMOWModel::PropertiesFromPb(
     Name(fromPb.name().c_str());
     for(const PbMOWGraphics::PbMOWModelPart& part : fromPb.parts())
     {
-        CMOWModelPart* modelPart = CMOWModelPart::FromPb(part);
+        CMOWModelPartPtr modelPart = CMOWModelPart::FromPb(part);
         AddModelPart(modelPart);
     }
     m_boundingShape = fromPb.boundingshape();
@@ -1117,7 +1113,7 @@ const parts_map& CMOWModel::Parts() const
     return m_parts;
 }
 //------------------------------------------------------
-void CMOWModel::AddModelPart(CMOWModelPart* part)
+void CMOWModel::AddModelPart(CMOWModelPartPtr part)
 {
     m_parts[part->Name()] = part;
 }
@@ -1133,13 +1129,13 @@ void CMOWModel::CreatePhysicalBody(
         CMOWVector(XMVectorGetX(Rotation()),XMVectorGetY(Rotation()), XMVectorGetZ(Rotation()), XMVectorGetW(Rotation())) 
     );
     
-    m_physicalBody = physics.CreatePhysicalEntityFromModel(this,fixed,collidable, transform);
+    m_physicalBody = physics.CreatePhysicalEntityFromModel(shared_from_this(),fixed,collidable, transform);
 }
 //------------------------------------------------------
 long CMOWModel::FindOppositeIndex(
     long index1, 
     long index2, 
-    CMOWFace* face
+    CMOWFacePtr face
     ) const
 {
     long oppIndex = -1;

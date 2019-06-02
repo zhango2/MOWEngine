@@ -30,7 +30,7 @@ CMOWRenderableObject* CMOWCamera::RenderableObject()
     return this;
 }
 //---------------------------------------------
-CMOWCamera* CMOWCamera::Create(
+CMOWCameraPtr CMOWCamera::Create(
     const CMOWPhysics& physics,
     float fieldOfView,
     float aspectRatio,
@@ -38,20 +38,25 @@ CMOWCamera* CMOWCamera::Create(
     float farPlane
     )
 {
-    CMOWCamera* cam = new CMOWCamera(
+    CMOWCameraPtr cam =CMOWCameraPtr( new CMOWCamera(
         fieldOfView,
         aspectRatio,
         nearPlane,
-        farPlane
-    );
+        farPlane))
+    ;
     cam->Init(physics);
 
     return cam;
 }
 //---------------------------------------------
-CMOWModel* CMOWCamera::Model()
+CMOWModelPtr CMOWCamera::MutableModel()
 {
-    return this;
+    return shared_from_this();
+}
+//---------------------------------------------
+CMOWModelPtrC CMOWCamera::Model() const
+{
+    return shared_from_this();
 }
 //---------------------------------------------
 void CMOWCamera::Update()
@@ -155,13 +160,13 @@ CMOWObject* CMOWCamera::MutableGeometryObject()
     return this;
 }
 //------------------------------------------------------
-CMOWCamera* CMOWCamera::FromPb(
+CMOWCameraPtr CMOWCamera::FromPb(
     const PbMOWGraphics::PbMOWModel& fromPb, 
     const CMOWPhysics& physics
     )
 {
     return nullptr;
-    /*CMOWCamera* retVal = new CMOWCamera;
+    /*CMOWCameraPtr retVal = new CMOWCamera;
     CMOWModel* base = reinterpret_cast<CMOWModel*>(retVal);
     base->FromPb(fromPb,physics);
     return retVal;*/

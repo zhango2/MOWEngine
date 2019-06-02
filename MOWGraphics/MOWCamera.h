@@ -6,6 +6,8 @@
 #include "MOWObject.h"
 #include "MOWCommon/MOWInput.h"
 
+DECLARE_SHARED_PTR(CMOWCamera)
+
 class CMOWCamera : 
     public CMOWViewPoint,
     public CMOWSphere,
@@ -24,7 +26,7 @@ public:
         ~CMOWCamera(
             );
     
-    static CMOWCamera*       
+    static CMOWCameraPtr       
         Create(
             const CMOWPhysics& physics,
             float fieldOfView,
@@ -42,9 +44,13 @@ public:
         RenderableObject(
             );
 
-    CMOWModel*               
+    CMOWModelPtrC               
         Model(
-            );
+            )const override;
+
+    CMOWModelPtr               
+        MutableModel(
+            ) override;
 
     //CMOWInput::IEvents overrides
 
@@ -61,7 +67,7 @@ public:
 
     
 
-    static CMOWCamera*
+    static CMOWCameraPtr
         FromPb( 
             const PbMOWGraphics::PbMOWModel& fromPb, 
             const CMOWPhysics& physics 

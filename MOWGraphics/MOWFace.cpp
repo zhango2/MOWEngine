@@ -8,13 +8,13 @@ CMOWFace::~CMOWFace()
 
 }
 //---------------------------------------------
-CMOWFace* CMOWFace::Create( 
+CMOWFacePtr CMOWFace::Create( 
     long index1, 
     long index2, 
     long index3
     )
 {
-    return new CMOWFace(index1,index2,index3);
+    return CMOWFacePtr(new CMOWFace(index1,index2,index3));
 }
 //---------------------------------------------
 CMOWFace::CMOWFace( 
@@ -204,11 +204,11 @@ void CMOWFace::ToPb(
     }
 }
 //------------------------------------------------------
-CMOWFace* CMOWFace::FromPb(
+CMOWFacePtr CMOWFace::FromPb(
     const PbMOWGraphics::PbMOWFace& fromPb
     )
 {
-    CMOWFace* face = new CMOWFace;
+    CMOWFacePtr face = CMOWFacePtr(new CMOWFace);
 
     for( const int& index : fromPb.indices() )
     {

@@ -23,6 +23,7 @@ add_library(MOWGraphics
   MOWTriangle.cpp
   MOWVariant.cpp
   MOWViewPoint.cpp
+  MOWBone.cpp
 
   MOW2DObject.h
   MOWAlignedObject.h
@@ -48,6 +49,8 @@ add_library(MOWGraphics
   MOWTriangle.h
   MOWVariant.h
   MOWViewPoint.h
+  MOWBone.h
+  MOWCommon.h
 )
 
 find_package(protobuf REQUIRED)

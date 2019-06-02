@@ -7,6 +7,8 @@
 #include <fstream>
 #include "MOWCommon.h"
 
+DECLARE_SHARED_PTR(CMOWFace)
+
 namespace PbMOWGraphics
 {
     class PbMOWFace;
@@ -21,7 +23,7 @@ public:
     ~CMOWFace(
         );
 
-    static CMOWFace*         
+    static CMOWFacePtr         
         Create(
             long index1,
             long index2,
@@ -84,7 +86,7 @@ public:
             PbMOWGraphics::PbMOWFace& toPb 
             )const;
 
-    static CMOWFace*
+    static CMOWFacePtr
         FromPb(
             const PbMOWGraphics::PbMOWFace& fromPb 
             );

@@ -4,9 +4,10 @@
 #include "IMOWPhysicalEntity.h"
 #include "MOWCommon/MOWTransform.h"
 #include "MOWCommon/MOWVector.h"
+#include "MOWCommon/MOWSharedPtr.h"
 #include <string>
 
-class CMOWModel;
+DECLARE_SHARED_PTR(CMOWModel)
 
 class IMOWPhysicsWorld
 {
@@ -60,7 +61,7 @@ public:
 
     virtual IMOWPhysicalEntity*
         ConstructPhysicalEntityFromModel(
-            const CMOWModel* model,
+            CMOWModelPtrC model,
             bool fixed,
             bool collidable,
             const CMOWTransform& transform = CMOWTransform()

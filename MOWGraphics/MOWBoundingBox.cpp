@@ -22,7 +22,7 @@ CMOWBoundingBox* CMOWBoundingBox::Create(
     )
 {
     CMOWBoundingBox* pThis = new CMOWBoundingBox;
-    CMOWModelPart* part = pThis->CreateAndAddModelPart("Box",D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    CMOWModelPartPtr part = pThis->CreateAndAddModelPart("Box",D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     pThis->Width(width);
     pThis->Height(height);
     pThis->Depth(depth);
@@ -32,7 +32,7 @@ CMOWBoundingBox* CMOWBoundingBox::Create(
     return pThis;
 }
 //---------------------------------------------
-const CMOWModelPart* CMOWBoundingBox::ModelPart()
+const CMOWModelPartPtr CMOWBoundingBox::ModelPart()
 {
     return CMOWModel::ModelPart("Box");
 }
@@ -155,7 +155,7 @@ CMOWBoundingBox* CMOWBoundingBox::FromPb(
     retVal->Height(fromPb.widthheightdepth().y());
     retVal->Depth(fromPb.widthheightdepth().z());
 
-    CMOWModelPart* part = CMOWModelPart::FromPb(fromPb.part());
+    CMOWModelPartPtr part = CMOWModelPart::FromPb(fromPb.part());
 
     retVal->AddModelPart(part);
 

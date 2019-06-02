@@ -33,7 +33,7 @@ void CMOWSphere::PopulateVerticesAndIndices()
     int sliceCount = m_stacks;
     int stackCount = m_stacks;
 
-    CMOWModelPart* part = ModelPart("Sphere");
+    CMOWModelPartPtr part = ModelPart("Sphere");
 
 
     if( part && part->Vertices().size() == 0 )
@@ -159,7 +159,7 @@ void CMOWSphere::SphereConstruct(
     m_stacks = stacks;
     Name(name ? name : "Sphere");
 
-    CMOWModelPart* part = CreateAndAddModelPart("Sphere",D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    CMOWModelPartPtr part = CreateAndAddModelPart("Sphere",D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     part->MaterialName(materialName ? materialName : "");
     
     m_physicalBody = physics.CreatePhysicalSphere(collidable, fixed, radius, mass);

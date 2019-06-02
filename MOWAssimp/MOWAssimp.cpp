@@ -3,16 +3,22 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "assimp/material.h"
+
+#include <d3dcommon.h>
+#include <sstream>
+
 #include "MOWGraphics/MOWModel.h"
 #include "MOWGraphics/MOWModelPart.h"
 #include "MOWGraphics/MOWFace.h"
 #include "MOWGraphics/MOWCommon.h"
-#include <d3dcommon.h>
-#include <sstream>
 #include "MOWGraphics/MOWMaterial.h"
 #include "MOWGraphics/MOWResourceManager.h"
 #include "MOWGraphics/MOWScene.h"
+#include "MOWGraphics/MOWBone.h"
 #include "MOWPhysics/MOWPhysics.h"
+
+
+using namespace DirectX;
 
 namespace MOWAssimp
 {
@@ -51,7 +57,7 @@ void LoadModelsIntoResourceManager(
         
         if( aiScene->HasMeshes() )
         {
-            CMOWModel* model = new CMOWModel;
+            CMOWModelPtr model = CMOWModelPtr(new CMOWModel);
             for(unsigned int i = 0; i < aiScene->mNumMeshes; i++)
             {
                 aiMesh* mesh = aiScene->mMeshes[i];
@@ -60,7 +66,7 @@ void LoadModelsIntoResourceManager(
                 {
                     if( i != 0 )
                     {
-                        model = loadAllMeshesIntoASingleModel ? model : new CMOWModel;
+                        model = loadAllMeshesIntoASingleModel ? model : CMOWModelPtr(new CMOWModel);
                     }
                     
                     LoadModel(mesh, modelName, physics, textureNamesByMaterialName, materialNameByIndex, model);
@@ -70,10 +76,6 @@ void LoadModelsIntoResourceManager(
                         if( !CMOWResourceManager::Instance()->GetModel(model->Name().c_str()) )
                         {
                             CMOWResourceManager::Instance()->AddModel(model);
-                        }
-                        else if( !loadAllMeshesIntoASingleModel )
-                        {
-                            delete model;
                         }
                     }
                 }
@@ -131,18 +133,32 @@ void LoadModel(
     CMOWPhysics& physics,
     const std::map< std::string, std::vector<std::string> >& textureNamesByMaterialName, 
     const std::map< unsigned int, std::string >& materialNameByIndex,
-    CMOWModel* target
+    CMOWModelPtr target
     )
 {
     target->Name(modelName);
-    CMOWModelPart* modelPart = target->CreateAndAddModelPart(mesh->mName.C_Str(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    CMOWModelPartPtr modelPart = target->CreateAndAddModelPart(mesh->mName.C_Str(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    auto itMaterialName = materialNameByIndex.find(mesh->mMaterialIndex);
+    CreateAndAddMaterials(*mesh,textureNamesByMaterialName,materialNameByIndex,*modelPart);
+    CreateAndAddFaces(*mesh, *modelPart);
+    CreateAndAddBones(*mesh, *modelPart);
+
+    //target->CreatePhysicalBody(physics, true, true);
+}
+//------------------------------------------------------
+void CreateAndAddMaterials(
+    const aiMesh& mesh, 
+    const std::map< std::string, std::vector<std::string> >& textureNamesByMaterialName, 
+    const std::map< unsigned int, std::string >& materialNameByIndex, 
+    CMOWModelPart& modelPart
+    )
+{
+    auto itMaterialName = materialNameByIndex.find(mesh.mMaterialIndex);
 
     if( itMaterialName != materialNameByIndex.end() )
     {
                         
-        CMOWMaterial* material = CMOWResourceManager::Instance()->Material(itMaterialName->second.c_str()) ? CMOWResourceManager::Instance()->Material(itMaterialName->second.c_str()) : new CMOWMaterial();
+        CMOWMaterialPtr material = CMOWResourceManager::Instance()->Material(itMaterialName->second.c_str()) ? CMOWResourceManager::Instance()->Material(itMaterialName->second.c_str()) : CMOWMaterialPtr(new CMOWMaterial());
         material->Name(itMaterialName->second.c_str());
         CMOWResourceManager::Instance()->AddMaterial(material);
 
@@ -155,14 +171,22 @@ void LoadModel(
                 material->TextureFileName(itTextureFileName->second[n-1].c_str(), CMOWMaterial::TEXTURE_TYPE(n));
             }
         }
-        modelPart->MaterialName(itMaterialName->second.c_str());
+        modelPart.MaterialName(itMaterialName->second.c_str());
     }
-                    
-    if(mesh->HasFaces())
+}
+
+
+//------------------------------------------------------
+void CreateAndAddFaces(
+    const aiMesh& mesh, 
+    CMOWModelPart& modelPart
+    )
+{
+    if(mesh.HasFaces())
     {
-        for(unsigned int n = 0; n < mesh->mNumFaces; n++)
+        for(unsigned int n = 0; n < mesh.mNumFaces; n++)
         {
-            aiFace* face = &mesh->mFaces[n];
+            aiFace* face = &mesh.mFaces[n];
 
             if(face && 3 == face->mNumIndices)
             {
@@ -170,22 +194,22 @@ void LoadModel(
                 unsigned int index2 = face->mIndices[1];
                 unsigned int index3 = face->mIndices[2];
 
-                CMOWFace* mowFace = CMOWFace::Create(index1, index2, index3);
-                modelPart->AddFace(mowFace);
+                CMOWFacePtr mowFace = CMOWFace::Create(index1, index2, index3);
+                modelPart.AddFace(mowFace);
             }
         }
 
         aiVector3D* textCoord = nullptr;
-        if(mesh->HasTextureCoords(0))
+        if(mesh.HasTextureCoords(0))
         {
-            textCoord = *(&mesh->mTextureCoords[0]);
+            textCoord = *(&mesh.mTextureCoords[0]);
         }
-        for(unsigned int n = 0; n < mesh->mNumVertices; n++)
+        for(unsigned int n = 0; n < mesh.mNumVertices; n++)
         {
-            aiVector3D* vertex = &mesh->mVertices[n];
-            aiVector3D* normal = &mesh->mNormals[n];
-            aiVector3D* tangent = &mesh->mTangents[n];
-            aiVector3D* biTangent = &mesh->mBitangents[n];
+            aiVector3D* vertex = &mesh.mVertices[n];
+            aiVector3D* normal = &mesh.mNormals[n];
+            aiVector3D* tangent = &mesh.mTangents[n];
+            aiVector3D* biTangent = &mesh.mBitangents[n];
 
 
             Vertex mowVertex;
@@ -212,11 +236,55 @@ void LoadModel(
                 mowVertex.m_texture.y = actualTextCoord->y;
             }
 
-            modelPart->AddVertex(mowVertex);
+            modelPart.AddVertex(mowVertex);
         }
                         
     }
-    //target->CreatePhysicalBody(physics, true, true);
+}
+//------------------------------------------------------
+void CreateAndAddBones(
+    const aiMesh& mesh, 
+    CMOWModelPart& modelPart
+    )
+{
+    if( mesh.HasBones() )
+    {
+        for(unsigned int i=0;i<mesh.mNumBones; i++ )
+        {
+            aiBone* bone = mesh.mBones[i];
+            
+            XMFLOAT4X4 offsetMatrix(
+                bone->mOffsetMatrix.a1,
+                bone->mOffsetMatrix.a2,
+                bone->mOffsetMatrix.a3,
+                bone->mOffsetMatrix.a4,
+                bone->mOffsetMatrix.b1,
+                bone->mOffsetMatrix.b2,
+                bone->mOffsetMatrix.b3,
+                bone->mOffsetMatrix.b4,
+                bone->mOffsetMatrix.c1,
+                bone->mOffsetMatrix.c2,
+                bone->mOffsetMatrix.c3,
+                bone->mOffsetMatrix.c4,
+                bone->mOffsetMatrix.d1,
+                bone->mOffsetMatrix.d2,
+                bone->mOffsetMatrix.d3,
+                bone->mOffsetMatrix.d4
+                )
+            ;
+
+            CMOWBonePtr mowBone = CMOWBonePtr(new CMOWBone(bone->mName.C_Str(), offsetMatrix));
+
+
+            for( unsigned int j=0; j<bone->mNumWeights; j++ )
+            {
+                aiVertexWeight weight = bone->mWeights[j];
+                mowBone->AddVertexWeight(weight.mVertexId, weight.mWeight);
+            }
+            modelPart.AddBone(mowBone);
+
+        }
+    }
 }
 }
 

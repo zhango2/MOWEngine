@@ -1,5 +1,6 @@
 #include "MOWModelPart.h"
 #include "MOWFace.h"
+#include "MOWBone.h"
 #include "MOWResourceManager.h"
 #include <set>
 #include "MOWMaterial.h"
@@ -62,7 +63,7 @@ bool CMOWModelPart::CreateResources( ID3D11Device* device )
     memset(&vertexData,0,sizeof(D3D11_SUBRESOURCE_DATA));
     memset(&indexData,0,sizeof(D3D11_SUBRESOURCE_DATA));
 
-    CMOWMaterial* material = CMOWResourceManager::Instance()->Material(MaterialName());
+    CMOWMaterialPtr material = CMOWResourceManager::Instance()->Material(MaterialName());
 
     std::set<ID3D11ShaderResourceView*> resources;
     if( material )
@@ -141,12 +142,7 @@ void CMOWModelPart::Clear()
 
     face_vector::iterator itFace = m_faces.begin();
 
-    while( itFace != m_faces.end() )
-    {
-        CMOWFace* face = *itFace;
-        delete face;
-        itFace = m_faces.erase(itFace);
-    }
+    m_faces.clear();
 }
 //---------------------------------------------
 bool CMOWModelPart::Render( 
@@ -187,7 +183,7 @@ void CMOWModelPart::AddVertex( const Vertex& vert )
     m_vertices.push_back(newVert);
 }
 //---------------------------------------------
-void CMOWModelPart::AddFace( CMOWFace* face )
+void CMOWModelPart::AddFace( CMOWFacePtr face )
 {
     m_faces.push_back(face);
     
@@ -196,6 +192,13 @@ void CMOWModelPart::AddFace( CMOWFace* face )
         m_indices.push_back(face->Indices()[i]);
     }
     
+}
+//------------------------------------------------------
+void CMOWModelPart::AddBone(
+    CMOWBonePtr bone
+    )
+{
+    m_bones[bone->Name()] = bone;
 }
 //---------------------------------------------
 const face_vector& CMOWModelPart::Faces() const
@@ -238,7 +241,7 @@ bool CMOWModelPart::Serialize( std::ofstream& fOut )
 
     CMOWSerializer::WriteString(fOut,m_materialName);
 
-    CMOWMaterial* mat = CMOWResourceManager::Instance()->Material(m_materialName.c_str());
+    CMOWMaterialPtr mat = CMOWResourceManager::Instance()->Material(m_materialName.c_str());
     if( mat )
     {
         mat->Serialize(fOut);
@@ -284,7 +287,7 @@ bool CMOWModelPart::Serialize( std::ifstream& fIn )
 
     if( m_materialName.size() )
     {
-        CMOWMaterial* material = new CMOWMaterial();
+        CMOWMaterialPtr material = new CMOWMaterial();
         material->Serialize(fIn);
         CMOWResourceManager::Instance()->AddMaterial(material);
     }*/
@@ -358,7 +361,7 @@ void CMOWModelPart::ToPb(
         pbVert->mutable_color()->set_w(vert.m_color.w);*/
     }
 
-    for( const CMOWFace* face : Faces() )
+    for( CMOWFacePtrC face : Faces() )
     {
         PbMOWGraphics::PbMOWFace* pbFace = toPb.add_faces();
         face->ToPb( *pbFace );
@@ -366,11 +369,11 @@ void CMOWModelPart::ToPb(
     toPb.set_materialname(m_materialName);
 }
 //------------------------------------------------------
-CMOWModelPart* CMOWModelPart::FromPb(
+CMOWModelPartPtr CMOWModelPart::FromPb(
     const PbMOWGraphics::PbMOWModelPart& fromPb
     )
 {
-    CMOWModelPart* part = new CMOWModelPart(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    CMOWModelPartPtr part = CMOWModelPartPtr(new CMOWModelPart(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
     part->Name(fromPb.name().c_str());
 
     for( const PbMOWGraphics::PbMOWVertex& vert : fromPb.vertices() )

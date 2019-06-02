@@ -65,7 +65,7 @@ ID3D11ShaderResourceView* CMOWResourceManager::GetOrCreateTexture(
 }
 //---------------------------------------------
 void CMOWResourceManager::AddMaterial( 
-    CMOWMaterial* mat 
+    CMOWMaterialPtr mat 
     )
 {
     unsigned int index = 0;
@@ -76,11 +76,11 @@ void CMOWResourceManager::AddMaterial(
     }
 }
 //---------------------------------------------
-CMOWMaterial* CMOWResourceManager::Material(
+CMOWMaterialPtr CMOWResourceManager::Material(
     const char* name
     )
 {
-    CMOWMaterial* mat = 0;
+    CMOWMaterialPtr mat = 0;
     material_by_name_map::iterator itMat = m_materialByName.find(name);
     if( itMat != m_materialByName.end() )
     {
@@ -107,7 +107,7 @@ bool CMOWResourceManager::SerializeLoad(
     {
         for( size_t i=0; i<matSize; i++ )
         {
-            CMOWMaterial* mat = new CMOWMaterial;
+            CMOWMaterialPtr mat = new CMOWMaterial;
             mat->Serialize(fIn);
             AddMaterial(mat);
             GetOrCreateTexture(device,mat->TextureFileName());
@@ -121,7 +121,7 @@ bool CMOWResourceManager::SerializeLoad(
         {
             for( size_t i=0; i<modelSize; i++ )
             {
-                CMOWModel* model = new CMOWModel;
+                CMOWModelPtr model = new CMOWModel;
                 model->SerializeLoad(fIn);
                 AddModel(model);
             }
@@ -191,17 +191,17 @@ material_vector CMOWResourceManager::Materials()
 }
 //---------------------------------------------
 void CMOWResourceManager::AddModel( 
-    CMOWModel* model 
+    CMOWModelPtr model 
     )
 {
     m_models[model->Name()] = model;
 }
 //---------------------------------------------
-CMOWModel* CMOWResourceManager::GetModel( 
+CMOWModelPtr CMOWResourceManager::GetModel( 
     const char* modelName 
     )
 {
-    CMOWModel* model = 0;
+    CMOWModelPtr model = 0;
     model_by_name_map::iterator itModel = m_models.find(modelName);
 
     if( itModel != m_models.end() )
@@ -213,16 +213,16 @@ CMOWModel* CMOWResourceManager::GetModel(
 
 }
 //---------------------------------------------
-CMOWModel* CMOWResourceManager::GetNewModelInstance( 
+CMOWModelPtr CMOWResourceManager::GetNewModelInstance( 
     const char* modelName 
     )
 {
-    CMOWModel* newModel = 0;
-    CMOWModel* orig = GetModel(modelName);
+    CMOWModelPtr newModel = 0;
+    CMOWModelPtr orig = GetModel(modelName);
 
     if( orig )
     {
-        newModel = new CMOWModel(*orig);
+        newModel = CMOWModelPtr(new CMOWModel(*orig));
     }
     return newModel;
 }
@@ -283,14 +283,7 @@ void CMOWResourceManager::ClearShaders()
 //---------------------------------------
 void CMOWResourceManager::ClearMaterials()
 {
-    auto itMaterial = m_materialByName.begin();
-
-    while( itMaterial != m_materialByName.end() )
-    {
-        CMOWMaterial* material = itMaterial->second;
-        delete material;
-        itMaterial = m_materialByName.erase(itMaterial);
-    }
+    m_materialByName.clear();
 }
 //---------------------------------------
 void CMOWResourceManager::ClearTextures()

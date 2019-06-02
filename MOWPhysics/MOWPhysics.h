@@ -4,11 +4,12 @@
 #include "MOWCommon/MOWTimer.h"
 #include <string>
 #include "MOWCommon/MOWTransform.h"
+#include "MOWCommon/MOWSharedPtr.h"
 
-class CMOWModel;
 class IMOWPhysicalEntity;
 class IMOWPhysicsWorld;
 
+DECLARE_SHARED_PTR(CMOWModel)
 
 class CMOWPhysics
 {
@@ -25,14 +26,14 @@ public:
 
     void        
         AddModel(
-            CMOWModel* model,
+            CMOWModelPtr model,
             bool fixedObject = false,
             bool character = false
             );
 
     void        
         RemoveModel(
-            CMOWModel* model
+            CMOWModelPtr model
             );
 
     void        
@@ -70,7 +71,7 @@ public:
 
     IMOWPhysicalEntity*
         CreatePhysicalEntityFromModel(
-            const CMOWModel* model,
+            CMOWModelPtrC model,
             bool fixed,
             bool collidable,
             const CMOWTransform& transform = CMOWTransform()

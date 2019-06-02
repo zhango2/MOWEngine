@@ -20,14 +20,15 @@ CMOWRenderableObject* CMOWPointLight::RenderableObject()
     return this;
 }
 //---------------------------------------------
-const CMOWModel* CMOWPointLight::Model() const
+CMOWModelPtrC CMOWPointLight::Model() const
 {
-    return this;
+    CMOWModelPtrC pThis = shared_from_this();
+    return pThis;
 }
 //------------------------------------------------------
-CMOWModel* CMOWPointLight::MutableModel()
+CMOWModelPtr CMOWPointLight::MutableModel()
 {
-    return this;
+    return shared_from_this();
 }
 //---------------------------------------------
 CMOWLight* CMOWPointLight::Create(

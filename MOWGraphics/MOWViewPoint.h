@@ -5,8 +5,9 @@
 #include "MOWShaders\MOWShader.h"
 
 class CMOWRenderableObject;
-class CMOWModel;
 class CMOWObject;
+
+DECLARE_SHARED_PTR(CMOWModel)
 
 class CMOWViewPoint
 {
@@ -68,11 +69,11 @@ public:
         RenderableObject(
             );
 
-    virtual const CMOWModel*
+    virtual CMOWModelPtrC
         Model(
             ) const;
 
-    virtual CMOWModel*               
+    virtual CMOWModelPtr               
         MutableModel(
             );
 

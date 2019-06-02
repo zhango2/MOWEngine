@@ -6,16 +6,17 @@
 #include <vector>
 #include "MOWCommon.h"
 
-class CMOWMaterial;
-class CMOWModel;
 class CMOWShader;
 
+DECLARE_SHARED_PTR(CMOWMaterial)
+DECLARE_SHARED_PTR(CMOWModel)
+
 typedef std::map<std::string,ID3D11ShaderResourceView*> textures_map;
-typedef std::vector<CMOWMaterial*> material_vector;
-typedef std::map<std::string,CMOWMaterial*> material_by_name_map;
+typedef std::vector<CMOWMaterialPtr> material_vector;
+typedef std::map<std::string,CMOWMaterialPtr> material_by_name_map;
 typedef std::map<std::string,unsigned int> material_index_by_name_map;
-typedef std::map<std::string,CMOWModel*> model_by_name_map;
-typedef std::vector<CMOWModel*> model_vector;
+typedef std::map<std::string,CMOWModelPtr> model_by_name_map;
+typedef std::vector<CMOWModelPtr> model_vector;
 typedef std::map<std::string,CMOWShader*> shader_by_name_map;
 
 class CMOWResourceManager
@@ -37,10 +38,10 @@ public:
 
     void                        
         AddMaterial(
-            CMOWMaterial* mat
+            CMOWMaterialPtr mat
             );
 
-    CMOWMaterial*                
+    CMOWMaterialPtr                
         Material(
             const char* name
             );
@@ -62,15 +63,15 @@ public:
 
     void                        
         AddModel(
-            CMOWModel* model
+            CMOWModelPtr model
             );
 
-    CMOWModel*                   
+    CMOWModelPtr                   
         GetModel(
             const char* modelName
             );
 
-    CMOWModel*                   
+    CMOWModelPtr                   
         GetNewModelInstance(
             const char* modelName
             );

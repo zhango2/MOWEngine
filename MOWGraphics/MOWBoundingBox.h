@@ -3,7 +3,7 @@
 
 #include "MOWBox.h"
 
-class CMOWModelPart;
+DECLARE_SHARED_PTR(CMOWModelPart)
 
 class CMOWBoundingBox : public CMOWBox
 {
@@ -19,7 +19,7 @@ public:
             float depth 
             );
 
-    const CMOWModelPart*             
+    const CMOWModelPartPtr             
         ModelPart(
             );
 

@@ -9,18 +9,18 @@
 #include <set>
 #include <string>
 
-#include "MOWGraphics\MOWCommon.h"
-#include "MOWGraphics\MOW2DObject.h"
-#include "MOWGraphics\MOWViewPoint.h"
+#include "MOWGraphics/MOWCommon.h"
+#include "MOWGraphics/MOW2DObject.h"
+#include "MOWGraphics/MOWViewPoint.h"
 
-#include "MOWShaders\MOWTextureShader.h"
-#include "MOWShaders\MOWDepthShader.h"
-#include "MOWShaders\MOWDeferredShader.h"
-#include "MOWShaders\MOWLightShader.h"
-#include "MOWShaders\MOWShadowShader.h"
+#include "MOWShaders/MOWTextureShader.h"
+#include "MOWShaders/MOWDepthShader.h"
+#include "MOWShaders/MOWDeferredShader.h"
+#include "MOWShaders/MOWLightShader.h"
+#include "MOWShaders/MOWShadowShader.h"
 
-#include "DirectXTK\Inc\SpriteBatch.h"
-#include "DirectXTK\Inc\SpriteFont.h"
+#include "DirectXTK/Inc/SpriteBatch.h"
+#include "DirectXTK/Inc/SpriteFont.h"
 #include <memory>
 
 
@@ -30,7 +30,8 @@ class CMOWModel;
 class CMOWCamera;
 class CMOWShader;
 class CMOWRenderToTexture;
-class CMOWLight;
+
+DECLARE_SHARED_PTR(CMOWLight)
 
 class CMOWRendererStatistics
 {
@@ -169,13 +170,13 @@ private:
         RenderToTexture(
             CMOWRenderToTexture* renderToTexture,
             CMOWShader* shader,
-            std::set<CMOWLight*>& affectingLights
+            std::set<CMOWLightPtr>& affectingLights
             );
 
     void                            
         RenderScenes(
             CMOWShader* shader,
-            std::set<CMOWLight*>& affectingLights
+            std::set<CMOWLightPtr>& affectingLights
             );
 
     void                            
@@ -198,14 +199,14 @@ private:
 
     static void                     
         RenderLight(
-            CMOWLight* light,
+            CMOWLightPtr light,
             CMOWScene* scene,
             void* arg
             );
 
     static void                     
         RenderShadow(
-            CMOWLight* light,
+            CMOWLightPtr light,
             CMOWModel* model,
             CMOWScene* scene,
             void* arg

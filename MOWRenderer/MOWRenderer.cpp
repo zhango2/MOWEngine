@@ -380,7 +380,7 @@ void CMOWRenderer::Render()
     /*XMFLOAT4X4 lightViewMatrix;
     XMFLOAT4X4 lightProjectionMatrix;
     CDXShader::LightBufferDefinition lightDef;*/
-    std::set<CMOWLight*> affectingLights;
+    std::set<CMOWLightPtr> affectingLights;
     
 
     geoTime.Start();
@@ -569,7 +569,7 @@ void CMOWRenderer::Present()
 void CMOWRenderer::RenderToTexture( 
     CMOWRenderToTexture* renderToTexture,
     CMOWShader* shader,
-    std::set<CMOWLight*>& affectingLights
+    std::set<CMOWLightPtr>& affectingLights
     )
 {
     // Set the render target to be the render to texture.
@@ -589,7 +589,7 @@ void CMOWRenderer::RenderToTexture(
 //---------------------------------------------
 void CMOWRenderer::RenderScenes(
     CMOWShader* shader,
-    std::set<CMOWLight*>& affectingLights
+    std::set<CMOWLightPtr>& affectingLights
     )
 {
     
@@ -682,7 +682,7 @@ void CMOWRenderer::RegisterInputSink(
 }
 //---------------------------------------------
 void CMOWRenderer::RenderLight( 
-    CMOWLight* light, 
+    CMOWLightPtr light, 
     CMOWScene* scene,
     void* arg 
     )
@@ -761,7 +761,7 @@ void CMOWRenderer::RenderLight(
 }
 //------------------------------------------------------
 void CMOWRenderer::RenderShadow(
-    CMOWLight* light, 
+    CMOWLightPtr light, 
     CMOWModel* model,
     CMOWScene* scene,
     void* arg

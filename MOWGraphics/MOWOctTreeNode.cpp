@@ -86,7 +86,7 @@ void CMOWOctTreeNode::AddModels(
     model_collection& allModels
     )
 {
-    for(CMOWModel* model : allModels)
+    for(CMOWModelPtr model : allModels)
     {
         CMOWBoundingBox* boundingBox = model->BoundingBox();
 

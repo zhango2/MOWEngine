@@ -38,7 +38,7 @@ CMOWScene::~CMOWScene()
 }
 //---------------------------------------------
 void CMOWScene::AddModel( 
-    CMOWModel* model 
+    CMOWModelPtr model 
     )
 {
     model->Initialize(m_d3dDevice);
@@ -63,7 +63,7 @@ void CMOWScene::AddModel(
 bool CMOWScene::Render( 
     ID3D11DeviceContext* context, 
     CMOWShader* shader, 
-    std::set<CMOWLight*>& affectingLights,
+    std::set<CMOWLightPtr>& affectingLights,
     int screenWidth,
     int screenHeight
     )
@@ -111,7 +111,7 @@ bool CMOWScene::Render(
     
     while( itModel != m_models.end() )
     {
-        CMOWModel* model = (*itModel);
+        CMOWModelPtr model = (*itModel);
         model->Update();
         
         if( IsModelInFrustum(model) )
@@ -144,7 +144,7 @@ bool CMOWScene::Render(
 }
 //---------------------------------------------
 void CMOWScene::AddLight( 
-    CMOWLight* light, 
+    CMOWLightPtr light, 
     bool serializable
     )
 {
@@ -157,7 +157,7 @@ void CMOWScene::AddLight(
 }
 //------------------------------------------------------
 void CMOWScene::RemoveLight(
-    CMOWLight* light
+    CMOWLightPtr light
     )
 {
     light_collection::iterator itLight = m_lights.begin();
@@ -174,7 +174,7 @@ void CMOWScene::RemoveLight(
 }
 //---------------------------------------------
 void CMOWScene::AddCamera( 
-    CMOWCamera* camera,
+    CMOWCameraPtr camera,
     bool serializeable
     )
 {
@@ -190,19 +190,19 @@ void CMOWScene::AddCamera(
 }
 //---------------------------------------------
 void CMOWScene::ActiveCamera( 
-    CMOWCamera* camera 
+    CMOWCameraPtr camera 
     )
 {
     m_activeCamera = camera;
 }
 //---------------------------------------------
-CMOWCamera* CMOWScene::ActiveCamera() const
+CMOWCameraPtr CMOWScene::ActiveCamera() const
 {
     return m_activeCamera;
 }
 //---------------------------------------------
 void CMOWScene::RemoveModel( 
-    CMOWModel* model 
+    CMOWModelPtr model 
     )
 {
     model_collection::iterator itModel = m_models.find(model);
@@ -258,7 +258,7 @@ void CMOWScene::RenderLights(
     light_collection::iterator itLight = m_lights.begin();
     while( itLight != m_lights.end() )
     {
-        CMOWLight* light = (*itLight);
+        CMOWLightPtr light = (*itLight);
         light->UpdateViewPoint();
 
         if( 1/*IsModelInFrustum(light->Model())*/ )
@@ -276,7 +276,7 @@ void CMOWScene::RenderLights(
 //------------------------------------------------------
 void CMOWScene::RenderShadows(
     RenderShadowCB shadowCB,
-    CMOWLight* light,
+    CMOWLightPtr light,
     void* shadowArg
     )
 {
@@ -303,7 +303,7 @@ void CMOWScene::RenderShadows(
 }
 //---------------------------------------------
 bool CMOWScene::IsModelInFrustum( 
-    const CMOWModel* model 
+    const CMOWModelPtr model 
     )const
 {
     bool isInFrustum = true;
@@ -348,7 +348,7 @@ void CMOWScene::CreateOctTreeFromFixedObjects()
     
     while (fixedObjIterator != m_fixedModels.end())
     {
-        CMOWModel* model = (*fixedObjIterator);
+        CMOWModelPtr model = (*fixedObjIterator);
         CMOWBoundingBox* box = model->BoundingBox();
 
         float x = XMVectorGetX(box->Position());
@@ -399,19 +399,19 @@ void CMOWScene::ToPb(
     ) const
 {
 
-    for( const CMOWModel* model : m_octTreeRoot->Models() )
+    for( CMOWModelPtrC model : m_octTreeRoot->Models() )
     {
         model->ToPb(*(toPb.add_fixedmodels()),physics);
     }
-    for(const CMOWModel* model : m_models)
+    for( CMOWModelPtrC model : m_models )
     {
         model->ToPb(*(toPb.add_dynamicmodels()),physics);
     }
-    for( const CMOWCamera* camera : m_serializableCameras )
+    for( CMOWCameraPtrC camera : m_serializableCameras )
     {
         camera->ToPb(*(toPb.add_cameras()),physics);
     }
-    for(const CMOWLight* light : m_serializableLights)
+    for( CMOWLightPtrC light : m_serializableLights )
     {
         light->ToPb(*(toPb.add_lights()), physics);
     }
@@ -427,25 +427,25 @@ CMOWScene* CMOWScene::FromPb(
 
     for( const PbMOWGraphics::PbMOWModel& model : scene.fixedmodels() )
     {
-        CMOWModel* newModel = CMOWModel::FromPb(model,physics);
+        CMOWModelPtr newModel = CMOWModel::FromPb(model,physics);
         newScene->AddModel(newModel);
         physics.AddModel(newModel);
     }
     for(const PbMOWGraphics::PbMOWModel& model : scene.dynamicmodels())
     {
-        CMOWModel* newModel = CMOWModel::FromPb(model, physics);
+        CMOWModelPtr newModel = CMOWModel::FromPb(model, physics);
         newScene->AddModel(newModel);
         physics.AddModel(newModel);
     }
     for(const PbMOWGraphics::PbMOWModel& camera : scene.cameras())
     {
-        CMOWCamera* newCamera = CMOWCamera::FromPb(camera, physics);
+        CMOWCameraPtr newCamera = CMOWCamera::FromPb(camera, physics);
         newScene->AddCamera(newCamera);
-        physics.AddModel(newCamera);
+        physics.AddModel(newCamera->MutableModel());
     }
     for(const PbMOWGraphics::PbMOWLight& light : scene.lights())
     {
-        CMOWLight* newLight = CMOWLightCreator::CreateLight(light,physics);
+        CMOWLightPtr newLight = CMOWLightCreator::CreateLight(light,physics);
         newScene->AddLight(newLight,true);
         if( newLight->Model() )
         {
@@ -497,7 +497,7 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
                 while( itModel != node->Models().end() )
                 {
 
-                    CMOWModel* model = (*itModel);
+                    CMOWModelPtr model = (*itModel);
                     model->Update();
                     if( IsModelInFrustum(model) )
                     {
@@ -549,7 +549,7 @@ void CMOWScene::RenderModelsFromNodesInFrustum(
             if( node->Models().size() )
             {
                 
-                CMOWModel* model = (*node->Models().begin());
+                CMOWModelPtr model = (*node->Models().begin());
                 if( model )
                 {
                     int a=0;
@@ -592,7 +592,7 @@ void CMOWScene::RenderBoundingVolumes(
     while( itModel != models.end() )
     {
         
-        CMOWModel* model = (*itModel);
+        CMOWModelPtr model = (*itModel);
 
         model->BoundingBox()->Render(context,
                                         ActiveCamera()->GetViewMatrix(),
@@ -693,19 +693,12 @@ void CMOWScene::ClearModelCollectionAndDeleteModels(
     model_collection& models
     )
 {
-    auto itModel = models.begin();
-
-    while(itModel != models.end())
-    {
-        CMOWModel* model = *itModel;
-        delete model;
-        itModel = models.erase(itModel);
-    }
+    models.clear();
 }
 //------------------------------------------------------
-std::set<CMOWModel*> CMOWScene::FixedModels()
+std::set<CMOWModelPtr> CMOWScene::FixedModels()
 {
-    std::set<CMOWModel*> models;
+    std::set<CMOWModelPtr> models;
 
     ExtractModelsFromOctTreeNode(models,m_octTreeRoot);
 
@@ -714,23 +707,23 @@ std::set<CMOWModel*> CMOWScene::FixedModels()
 
 }
 //------------------------------------------------------
-const std::set<CMOWModel*>& CMOWScene::DynamicModels()
+const std::set<CMOWModelPtr>& CMOWScene::DynamicModels()
 {
     return m_models;
 }
 //------------------------------------------------------
 void CMOWScene::ExtractModelsFromOctTreeNode(
-    std::set<CMOWModel*>& models,
+    std::set<CMOWModelPtr>& models,
     CMOWOctTreeNode* node
     )
 {
-    for(CMOWModel* model : node->Models() )
+    for(CMOWModelPtr model : node->Models() )
     {
         models.insert(model);
     }
 }
 //------------------------------------------------------
-const std::vector<CMOWLight*>& CMOWScene::Lights()
+const std::vector<CMOWLightPtr>& CMOWScene::Lights()
 {
     return m_lights;
 }

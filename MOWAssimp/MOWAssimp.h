@@ -4,11 +4,17 @@
 #include <string>
 #include <map>
 #include <vector>
+#include "MOWCommon/MOWSharedPtr.h"
 
 class CMOWPhysics;
-class CMOWModel;
+
+class CMOWModelPart;
 struct aiScene;
 struct aiMesh;
+
+DECLARE_SHARED_PTR(CMOWBone)
+DECLARE_SHARED_PTR(CMOWModel)
+
 namespace MOWAssimp
 {
     void
@@ -36,7 +42,27 @@ namespace MOWAssimp
             CMOWPhysics& physics,
             const std::map< std::string, std::vector<std::string> >& textureNamesByMaterialName,
             const std::map< unsigned int, std::string >& materialNameByIndex,
-            CMOWModel* target
+            CMOWModelPtr target
+            );
+
+    void
+        CreateAndAddMaterials(
+            const aiMesh& mesh, 
+            const std::map< std::string, std::vector<std::string> >& textureNamesByMaterialName, 
+            const std::map< unsigned int, std::string >& materialNameByIndex,
+            CMOWModelPart& modelPart
+            );
+
+    void
+        CreateAndAddFaces(
+            const aiMesh& mesh, 
+            CMOWModelPart& modelPart
+            );
+
+    void
+        CreateAndAddBones(
+            const aiMesh& mesh, 
+            CMOWModelPart& modelPart
             );
 }
 

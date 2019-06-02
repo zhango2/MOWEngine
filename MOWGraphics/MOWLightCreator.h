@@ -4,15 +4,18 @@
 #include <iostream>
 #include <fstream>
 #include "MOWMessages/MOWGraphics.pb.h"
+#include "MOWCommon/MOWSharedPtr.h"
 
 class CMOWPhysics;
-class CMOWLight;
+
+
+DECLARE_SHARED_PTR(CMOWLight)
 
 class CMOWLightCreator
 {
 public:
 
-    static CMOWLight*               
+    static CMOWLightPtr               
         CreateLight(
             const PbMOWGraphics::PbMOWLight& fromPb,
             const CMOWPhysics& physics

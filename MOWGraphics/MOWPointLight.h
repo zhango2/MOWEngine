@@ -10,7 +10,6 @@ class CMOWRenderableObject;
 class CMOWPointLight :
     public CMOWLight,
     public CMOWSphere
-    
 {
 public:
     CMOWPointLight(
@@ -24,11 +23,11 @@ public:
         RenderableObject(
             );
 
-    const CMOWModel*                     
+    CMOWModelPtrC                     
         Model(
             ) const override;
 
-    CMOWModel*                           
+    CMOWModelPtr                           
         MutableModel(
             ) override;
 

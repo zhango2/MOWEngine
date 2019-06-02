@@ -18,7 +18,10 @@ class CMOWBoundingBox;
 class IMOWPhysicalEntity;
 class CMOWPhysics;
 
-typedef std::map<std::string,CMOWModelPart*> parts_map;
+DECLARE_SHARED_PTR(CMOWModelPart)
+DECLARE_SHARED_PTR(CMOWModel)
+
+typedef std::map<std::string,CMOWModelPartPtr> parts_map;
 typedef std::vector<ID3D11ShaderResourceView*> texture_vector;
 
 namespace PbMOWGraphics
@@ -28,7 +31,8 @@ namespace PbMOWGraphics
 
 class CMOWModel : 
     public CMOWObject,
-    public CMOWRenderableObject
+    public CMOWRenderableObject,
+    public std::enable_shared_from_this<CMOWModel>
 
 {
     typedef CMOWRenderableObject BaseClass;
@@ -117,7 +121,7 @@ public:
             bool useAdjacentIndices = false
             )const override;
 
-    static CMOWModel*                            
+    static CMOWModelPtr                            
         PopulateModelFromObjFile(
             const char* fileName
             );
@@ -167,13 +171,13 @@ public:
             float zVel
             )override;
 
-    CMOWModelPart*                               
+    CMOWModelPartPtr                               
         CreateAndAddModelPart(
             const char* name, 
             D3D11_PRIMITIVE_TOPOLOGY topology
             );
 
-    CMOWModelPart*                               
+    CMOWModelPartPtr                               
         ModelPart(
             const char* name
             ) const;
@@ -184,7 +188,7 @@ public:
             const CMOWPhysics& physics
             )const;
 
-    static CMOWModel*                            
+    static CMOWModelPtr                            
         SerializeLoad(
             const char* fileName,
             const CMOWPhysics& physics
@@ -196,7 +200,7 @@ public:
             const CMOWPhysics& physics
             )const;
 
-    static CMOWModel*                            
+    static CMOWModelPtr                            
         SerializeLoad(
             std::ifstream& fIn,
             const CMOWPhysics& physics,
@@ -253,7 +257,7 @@ public:
             const CMOWPhysics& physics
             )const;
 
-    static CMOWModel*
+    static CMOWModelPtr
         FromPb(
             const PbMOWGraphics::PbMOWModel& fromPb,
             const CMOWPhysics& physics
@@ -299,15 +303,15 @@ protected:
 
     void                                        
         FindAdjacencies(
-            CMOWModelPart* part
+            CMOWModelPartPtr part
             );
     
     void                                        
         FindAjacentFaces(
-            CMOWFace* face,
-            std::set<CMOWFace*>& remainingFaces,
-            CMOWModelPart* part,
-            std::vector<CMOWFace*>& adjacentFaces
+            CMOWFacePtr face,
+            std::set<CMOWFacePtr>& remainingFaces,
+            CMOWModelPartPtr part,
+            std::vector<CMOWFacePtr>& adjacentFaces
             );
 
     virtual void                                
@@ -324,7 +328,7 @@ protected:
 
     void
         AddModelPart(
-            CMOWModelPart* part
+            CMOWModelPartPtr part
             );
 
     parts_map                                   
@@ -369,7 +373,7 @@ private:
         FindOppositeIndex(
             long index1, 
             long index2,
-            CMOWFace* face
+            CMOWFacePtr face
             ) const;
 
     

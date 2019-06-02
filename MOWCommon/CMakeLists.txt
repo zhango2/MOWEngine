@@ -11,6 +11,7 @@ add_library(MOWCommon
   MOWVector.h
   MOWInput.h
   MOWTransform.h
+  MOWSharedPtr.h
 )
 
 include_directories("${BASE_DIR}")
